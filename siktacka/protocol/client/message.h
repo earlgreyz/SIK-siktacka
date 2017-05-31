@@ -1,7 +1,7 @@
 #ifndef SIK_SIKTACKA_CLIENT_MESSAGE_H
 #define SIK_SIKTACKA_CLIENT_MESSAGE_H
 
-#include "types.h"
+#include "../../types.h"
 #include <string>
 
 
@@ -10,7 +10,7 @@ namespace siktacka {
     private:
         session_t session_id;
         turn_t turn_direction;
-        event_t next_event;
+        event_no_t next_event;
         std::string player_name;
 
     public:
@@ -24,7 +24,7 @@ namespace siktacka {
          * @throws std::invalid_arguments
          */
         ClientMessage(session_t session_id, turn_t turn_direction,
-                      event_t next_event, const std::string &player_name);
+                      event_no_t next_event, const std::string &player_name);
 
         /**
          * Constructs new message.
@@ -35,7 +35,7 @@ namespace siktacka {
          * @throws std::invalid_arguments
          */
         ClientMessage(session_t session_id, turn_t turn_direction,
-                      event_t next_event, std::string &&player_name = "");
+                      event_no_t next_event, std::string &&player_name = "");
 
         /**
          * Constructs new client message from network formatted bytes.
