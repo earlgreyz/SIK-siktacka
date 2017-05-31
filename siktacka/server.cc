@@ -7,9 +7,7 @@
 using namespace siktacka;
 
 Server::Server(sik::port_t port, const GameOptions &game_options)
-        : Server::Server(port, std::move(GameOptions(game_options))) {
-
-}
+        : Server::Server(port, std::move(GameOptions(game_options))) {}
 
 Server::Server(sik::port_t port, GameOptions &&game_options) {
     open_socket();
@@ -29,16 +27,14 @@ void Server::bind_socket(sik::port_t port) {
     address.sin_family = AF_INET;
     address.sin_addr.s_addr = htonl(INADDR_ANY);
     address.sin_port = htons(port);
-    int binding_result = bind(sock, (sockaddr *) &address,
-    (socklen_t) sizeof(address));
-    if (binding_result < 0) {
+
+    if (bind(sock, (sockaddr *) &address, (socklen_t) sizeof(address)) < 0) {
         throw ServerException("Error binding to socket");
     }
 }
 
 void Server::open_socket() {
-    sock = socket(AF_INET, SOCK_DGRAM | O_NONBLOCK, IPPROTO_UDP);
-    if (sock < 0) {
+    if ((sock = socket(AF_INET, SOCK_DGRAM | O_NONBLOCK, IPPROTO_UDP)) < 0) {
         throw ServerException("Error opening socket");
     }
 }

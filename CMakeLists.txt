@@ -11,7 +11,7 @@ if(NOT Boost_FOUND)
     message(FATAL_ERROR "Required Boost not found")
 endif()
 
-set(SOURCE_FILES sik/poll.h error.h sik/types.h siktacka/types.h siktacka/game.cc siktacka/game.h)
+set(SOURCE_FILES sik/poll.h error.h sik/types.h siktacka/types.h siktacka/game.cc siktacka/game.h siktacka/client_message.cc siktacka/client_message.h)
 set(SERVER_SOURCE_FILES siktacka/server.cc siktacka/server.h sitacka-server.cpp)
 set(CLIENT_SOURCE_FILES sitacka-client.cpp)
 

@@ -43,7 +43,7 @@ namespace {
                          siktacka::SERVER_DEFAULT_ROUNDS),
                  "Rounds per second")
                 ("turn-speed,t",
-                 po::value<siktacka::turn_t>(
+                 po::value<siktacka::turn_speed_t>(
                          &game_options.turning_speed)->default_value(
                          siktacka::SERVER_DEFAULT_TURN),
                  "Turning speed")
