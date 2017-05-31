@@ -218,43 +218,43 @@ opisany poniżej.
 
 9. **Podłączanie i odłączanie graczy**
 
- Podłączenie nowego gracza może odbyć się w dowolnym momencie. Wystarczy,
+ Podłączenie nowego gracza może odbyć się **w dowolnym momencie**. Wystarczy,
  że serwer odbierze prawidłowy komunikat od nowego klienta. Jeśli nowy
- gracz podłączy się podczas partii, staje się jej obserwatorem, otrzymuje
+ gracz podłączy się **podczas partii**, staje się jej **obserwatorem**, otrzymuje
  informacje o wszystkich zdarzeniach, które miały miejsce od początku
- partii. Do walki dołącza w kolejnej partii.
+ partii. **Do walki dołącza w kolejnej partii.**
 
- Jeśli podłączy się gracz, który w komunikatach przesyła puste pole
- player_name, to taki gracz nie walczy, ale może obserwować rozgrywane
+ Jeśli podłączy się gracz, który w komunikatach przesyła **puste pole**
+ `player_name`, to taki gracz nie walczy, ale może obserwować rozgrywane
  partie.
 
- Brak komunikacji od gracza przez 2 sekundy skutkuje jego odłączeniem.
- Jeśli gra się już rozpoczęła, wąż takiego gracza nie znika i nadal porusza
- się wg algorytmu z punktu „11. Przebieg partii”.
+ **Brak komunikacji** od gracza przez **2 sekundy** skutkuje jego **odłączeniem**.
+ Jeśli gra się już rozpoczęła, **wąż** takiego gracza **nie znika** i nadal porusza
+ się wg algorytmu z punktu *„11. Przebieg partii”*.
 
- Klienty są identyfikowane za pomocą par (gniazdo, session_id), jednakże
+ **Klienty są identyfikowane** za pomocą par `(gniazdo, session_id)`, jednakże
  otrzymanie komunikatu z gniazda istniejącego klienta, aczkolwiek
- z większym niż dotychczasowe session_id, jest równoznaczne z odłączeniem
- istniejącego klienta i podłączeniem nowego. Komunikaty z mniejszym niż
- dotychczasowe session_id należy ignorować.
+ z większym niż dotychczasowe `session_id`, jest równoznaczne z **odłączeniem
+ istniejącego klienta i podłączeniem nowego**. Komunikaty z mniejszym niż
+ dotychczasowe `session_id` należy ignorować.
 
-   Pakiety otrzymane z nieznanego dotychczas gniazda, jednakże z nazwą
-   podłączonego już klienta, są ignorowane.
+ **Pakiety otrzymane z nieznanego dotychczas gniazda, jednakże z nazwą
+ podłączonego już klienta, są ignorowane.**
 
-10. Rozpoczęcie partii i zarządzanie podłączonymi klientami
+10. **Rozpoczęcie partii i zarządzanie podłączonymi klientami**
+ Do **rozpoczęcia partii** potrzeba, aby wszyscy **podłączeni gracze**
+ (o niepustej nazwie) **nacisnęli strzałkę** _(przysłali turn_direction != 0)_
+ oraz żeby tych graczy było **co najmniej dwóch**.
 
-   Do rozpoczęcia partii potrzeba, aby wszyscy podłączeni gracze
-   (o niepustej nazwie) nacisnęli strzałkę (przysłali turn_direction != 0)
-   oraz żeby tych graczy było co najmniej dwóch.
+ **Kolejność graczy** ustala się, ustawiając ich **w kolejności alfabetycznej** po
+ nazwach. Ta kolejność jest następnie wykorzystana przy wypełnianiu pól
+ zdarzenia `NEW_GAME` oraz wszędzie tam, gdzie pojawia się w pseudokodzie
+ sformułowanie _„dla kolejnych graczy”_.
 
-   Kolejność graczy ustala się, ustawiając ich w kolejności alfabetycznej po
-   nazwach. Ta kolejność jest następnie wykorzystana przy wypełnianiu pól
-   zdarzenia NEW_GAME oraz wszędzie tam, gdzie pojawia się w pseudokodzie
-   sformułowanie „dla kolejnych graczy”.
+ Stan gry jest inicjowany w następujący sposób (kolejność wywołań `rand()` ma
+ znaczenie i należy użyć generatora z punktu „_7. Generator liczb losowych_”):
 
-   Stan gry jest inicjowany w następujący sposób (kolejność wywołań rand() ma
-   znaczenie i należy użyć generatora z punktu „7. Generator liczb losowych”):
-
+ ```python
    game_id = rand()
    wygeneruj zdarzenie NEW_GAME
    dla kolejnych graczy:
@@ -263,130 +263,110 @@ opisany poniżej.
      kierunek = rand() mod 360
      jeśli piksel głowy (po zaokrągleniu) jest już zajęty, to
        wygeneruj zdarzenie PLAYER_ELIMINATED
-     w przeciwnym razie
+     w przeciwnym razie:
        wygeneruj zdarzenie PIXEL
+ ```
 
-   A zatem można odpaść już na starcie.
+ A zatem można odpaść już na starcie.
 
-11. Przebieg partii
-
-   Partia składa się z tur.
-
-   Tura trwa 1/ROUNDS_PER_SEC sekundy.
-
+11. **Przebieg partii**
+ Partia składa się z tur. Tura trwa `1/ROUNDS_PER_SEC` sekundy.
+ ```python
    dla kolejnych graczy:
-     jeśli ostatni turn_direction = −1, to
+     jeśli ostatni turn_direction = −1, to:
        kierunek_w_stopniach_gdzie_0_jest_do_gory −= TURNING_SPEED
-     jeśli ostatni turn_direction = +1, to
+     jeśli ostatni turn_direction = +1, to:
        kierunek_w_stopniach_gdzie_0_jest_do_gory += TURNING_SPEED
      przesuń głowę gracza o 1 w bieżącym kierunku
-     jeśli przesuniecie nie zmieniło piksela po zaokrągleniu do wartości
-         całkowitych, to
+     jeśli przesuniecie nie zmieniło piksela po zaokrągleniu do wartości \
+         całkowitych, to:
        continue
-     jeśli nowy piksel (po zaokrągleniu) jest już zajęty
-         lub wypada poza planszą, to
+     jeśli nowy piksel (po zaokrągleniu) jest już zajęty \
+         lub wypada poza planszą, to:
        wygeneruj zdarzenie PLAYER_ELIMINATED
-     w przeciwnym razie
+     w przeciwnym razie:
        wygeneruj zdarzenie PIXEL
+ ```
+ Te zasady gry różnią się nieco od oryginalnej Netacki, w szczególności:
+ * Węże nie mają dziur, przez które można przechodzić.
+ * Węże są dość cienkie i przy odpowiedniej dozie szczęścia można
+  skorzystać z „efektu tunelowego”, jeśli kolejne piksele akurat nie
+  pokryją się z już zajętymi, np. w taki sposób:
+  ```
+  .1...
+  ..122
+  2221.
+  ....1
+  ```
 
-   Te zasady gry różnią się nieco od oryginalnej Netacki, w szczególności:
+12. **Zakończenie partii**
+ W momencie, gdy na planszy zostanie tylko jeden gracz, gra się kończy.
+ Generowane jest zdarzenie `GAME_OVER`.
 
-   – Węże nie mają dziur, przez które można przechodzić.
+ Serwer wciąż obsługuje komunikację z klientami w kontekście zakończonej
+ gry.
 
-   – Węże są dość cienkie i przy odpowiedniej dozie szczęścia można
-     skorzystać z „efektu tunelowego”, jeśli kolejne piksele akurat nie
-     pokryją się z już zajętymi, np. w taki sposób:
+ Jeśli po zakończeniu partii serwer otrzyma od każdego podłączonego klienta
+ (o niepustej nazwie) co najmniej jeden komunikat z `turn_direction != 0`,
+ rozpoczyna kolejną partię.
 
-     .1...
-     ..122
-     2221.
-     ....1
-
-12. Zakończenie partii
-
-  W momencie, gdy na planszy zostanie tylko jeden gracz, gra się kończy.
-  Generowane jest zdarzenie GAME_OVER.
-
-  Serwer wciąż obsługuje komunikację z klientami w kontekście zakończonej
-  gry.
-
-  Jeśli po zakończeniu partii serwer otrzyma od każdego podłączonego klienta
-  (o niepustej nazwie) co najmniej jeden komunikat z turn_direction != 0,
-  rozpoczyna kolejną partię.
-
-  Klienty muszą radzić sobie z sytuacją, kiedy po rozpoczęciu nowej gry
-  będą dostawać jeszcze stare, opóźnione datagramy z poprzedniej gry.
+ *Klienty muszą radzić sobie z sytuacją, kiedy po rozpoczęciu nowej gry
+ będą dostawać jeszcze stare, opóźnione datagramy z poprzedniej gry.*
 
 
-== Protokół komunikacyjny klient-GUI ==
-
+## Protokół komunikacyjny klient-GUI
 Do komunikacji między klientem oraz aplikacją graficznego interfejsu gracza
 wykorzystywany jest protokół opisany poniżej.
 
-1. Wymiana danych
+1. **Wymiana danych**
+ Wymiana danych odbywa się po TCP.
 
-   Wymiana danych odbywa się po TCP.
+2. **Format komunikatów**
+ Komunikaty przesyłane są w formie tekstowej, każdy w osobnej linii. Liczby
+ są reprezentowane dziesiętnie. Linia zakończona jest znakiem o kodzie ASCII
+ `10`.
 
-2. Format komunikatów
+ Jeśli linia składa się z kilku wartości, to wysyłający powinien te wartości
+ oddzielić pojedynczą spacją i nie dołączać dodatkowych białych znaków
+ na początku ani na końcu.
 
-   Komunikaty przesyłane są w formie tekstowej, każdy w osobnej linii. Liczby
-   są reprezentowane dziesiętnie. Linia zakończona jest znakiem o kodzie ASCII
-   10.
+3. **Odbiór komunikatów**
+ Odbiorca niepoprawnego komunikatu ignoruje go.
+ Odbiór komunikatu nie jest potwierdzany żadną wiadomością zwrotną.
 
-   Jeśli linia składa się z kilku wartości, to wysyłający powinien te wartości
-   oddzielić pojedynczą spacją i nie dołączać dodatkowych białych znaków
-   na początku ani na końcu.
+4. **Komunikaty od klienta do GUI**
+ Aplikacja graficznego interfejsu użytkownika akceptuje następujące
+ komunikaty:
+ * `NEW_GAME maxx maxy player_name1 player_name2 …`
+ * `PIXEL x y player_name`
+ * `PLAYER_ELIMINATED player_name`
 
-3. Odbiór komunikatów
+ Nazwa gracza to ciąg 1–64 znaków ASCII o wartościach z przedziału 33–126.
+ Współrzędne x, y to liczby całkowite, odpowiednio od 0 do maxx − 1 lub maxy − 1.
+ Lewy górny róg planszy ma współrzędne (0, 0), odcięte rosną w prawo, a rzędne w dół.
 
-   Odbiorca niepoprawnego komunikatu ignoruje go.
-
-   Odbiór komunikatu nie jest potwierdzany żadną wiadomością zwrotną.
-
-4. Komunikaty od klienta do GUI
-
-   Aplikacja graficznego interfejsu użytkownika akceptuje następujące
-   komunikaty:
-
-    – NEW_GAME maxx maxy player_name1 player_name2 …
-
-    – PIXEL x y player_name
-
-    – PLAYER_ELIMINATED player_name
-
-   Nazwa gracza to ciąg 1–64 znaków ASCII o wartościach z przedziału 33–126.
-
-   Współrzędne x, y to liczby całkowite, odpowiednio od 0 do maxx − 1 lub maxy − 1.
-   Lewy górny róg planszy ma współrzędne (0, 0), odcięte rosną w prawo,
-   a rzędne w dół.
-
-5. Komunikaty od GUI do klienta
-
-   Aplikacja graficznego interfejsu użytkownika wysyła następujące komunikaty:
-
-    – LEFT_KEY_DOWN
-    – LEFT_KEY_UP
-    – RIGHT_KEY_DOWN
-    – RIGHT_KEY_UP
+5. **Komunikaty od GUI do klienta**
+ Aplikacja graficznego interfejsu użytkownika wysyła następujące komunikaty:
+ * `LEFT_KEY_DOWN`
+ * `LEFT_KEY_UP`
+ * `RIGHT_KEY_DOWN`
+ * `RIGHT_KEY_UP`
 
 
-== Ustalenia dodatkowe ==
+## Ustalenia dodatkowe
 
-1. Programy powinny umożliwiać komunikację zarówno przy użyciu IPv4, jak i IPv6.
+1. Programy powinny umożliwiać komunikację zarówno przy użyciu **IPv4**, jak i **IPv6**.
 
 2. W implementacji programów duże kolejki komunikatów, zdarzeń itp. powinny być
    alokowane dynamicznie.
 
 3. Przy parsowaniu ciągów zdarzeń z datagramów przez klienta:
-
-   – pierwsze zdarzenie z niepoprawną sumą kontrolną powoduje zaprzestanie
-     przetwarzania kolejnych w tym datagramie, ale poprzednie pozostają w mocy;
-
-   – rekord z poprawną sumą kontrolną, znanego typu, jednakże z bezsensownymi
-     wartościami powoduje zakończenie klienta z odpowiednim komunikatem i kodem
-     wyjścia 1;
-
-   – pomija się zdarzenia z poprawną sumą kontrolną oraz nieznanym typem.
+ * pierwsze zdarzenie z **niepoprawną sumą kontrolną** powoduje zaprzestanie
+  przetwarzania kolejnych w tym datagramie, ale poprzednie pozostają w mocy;
+ * rekord z **poprawną sumą kontrolną**, znanego typu, jednakże z **bezsensownymi
+  wartościami** powoduje zakończenie klienta z odpowiednim komunikatem i kodem
+  wyjścia 1;
+ * pomija się zdarzenia z poprawną sumą kontrolną oraz nieznanym typem.
 
 4. Program klienta w przypadku błędu połączenia z serwerem gry lub aplikacją GUI
    powinien się zakończyć z kodem wyjścia 1, uprzednio wypisawszy zrozumiały
@@ -443,7 +423,7 @@ wykorzystywany jest protokół opisany poniżej.
     i zwracać kod 1.
 
 
-== Oddawanie rozwiązania ==
+##  Oddawanie rozwiązania
 
 Można oddać rozwiązanie tylko części A lub tylko części B, albo obu części.
 
@@ -471,7 +451,7 @@ Ponadto makefile powinien obsługiwać cel 'clean', który po wywołaniu kasuje
 wszystkie pliki powstałe podczas kompilacji.
 
 
-== Ocena ==
+## Ocena
 
 Za rozwiązanie części A zadania można dostać maksymalnie 3 punkty.
 Za rozwiązanie części B zadania można dostać maksymalnie 2 punkty.
