@@ -1,17 +1,19 @@
 #include <iostream>
 #include <ctime>
+#include <csignal>
+#include <memory>
 #include <boost/program_options.hpp>
 
 #include "error.h"
+#include "sik/types.h"
+#include "siktacka/types.h"
+#include "siktacka/server.h"
 
 
 namespace {
-    std::size_t width;
-    std::size_t height;
-    std::uint16_t port;
-    std::uint16_t rounds_per_sec;
-    std::uint16_t turning_speed;
-    std::int64_t seed;
+    sik::port_t server_port;
+    siktacka::GameOptions server_options;
+    std::unique_ptr<siktacka::Server> server;
 
     namespace po = boost::program_options;
 
@@ -23,22 +25,34 @@ namespace {
         po::options_description description("Options");
         description.add_options()
                 ("width,W",
-                 po::value<std::size_t>(&width)->default_value(800u),
+                 po::value<siktacka::pixel_t>(
+                         &server_options.width)->default_value(
+                         siktacka::SERVER_DEFAULT_WIDTH),
                  "Board width")
                 ("height,H",
-                 po::value<std::size_t>(&height)->default_value(600u),
+                 po::value<siktacka::pixel_t>(
+                         &server_options.height)->default_value(
+                         siktacka::SERVER_DEFAULT_HEIGHT),
                  "Board height")
                 ("port,p",
-                 po::value<std::uint16_t>(&port)->default_value(12345u),
+                 po::value<sik::port_t>(
+                         &server_port)->default_value(
+                         siktacka::SERVER_DEFAULT_PORT),
                  "Port")
                 ("rounds,s",
-                 po::value<std::uint16_t>(&rounds_per_sec)->default_value(50u),
+                 po::value<siktacka::rounds_t>(
+                         &server_options.rounds_per_sec)->default_value(
+                         siktacka::SERVER_DEFAULT_ROUNDS),
                  "Rounds per second")
                 ("turn-speed,t",
-                 po::value<std::uint16_t>(&turning_speed)->default_value(6u),
+                 po::value<siktacka::turn_t>(
+                         &server_options.turning_speed)->default_value(
+                         siktacka::SERVER_DEFAULT_TURN),
                  "Turning speed")
                 ("seed,r",
-                 po::value<std::int64_t>(&seed)->default_value(time(NULL)),
+                 po::value<siktacka::seed_t>(
+                         &server_options.seed)->default_value(
+                         time(NULL)),
                  "Random number generator seed");
         return std::move(description);
     }
@@ -62,11 +76,27 @@ namespace {
             throw std::invalid_argument(e.what());
         }
     }
+
+    /**
+     * Registers SIGINT signal.
+     */
+    void register_signals() {
+        if (signal(SIGINT, [](int sig) {
+            server->stop();
+            std::cerr << "Signal " << sig << " Stopping server." << std::endl;
+        }) == SIG_ERR) {
+            throw std::runtime_error("Unable to register SIGINT signal");
+        }
+    }
 }
 
 int main(int argc, char *argv[]) {
     try {
         parse_arguments(argc, argv);
+        server = std::make_unique<siktacka::Server>(server_port, server_options);
+        register_signals();
+
+        server->run();
     } catch (const std::exception &) {
         return RETURN_ERROR;
     }
