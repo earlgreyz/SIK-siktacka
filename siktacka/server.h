@@ -6,26 +6,14 @@
 #include <netinet/in.h>
 
 #include "types.h"
+#include "game.h"
 #include "../error.h"
 #include "../sik/types.h"
 #include "../sik/poll.h"
 
 
 namespace siktacka {
-    const pixel_t SERVER_DEFAULT_WIDTH = 800u;
-    const pixel_t SERVER_DEFAULT_HEIGHT = 600u;
     const sik::port_t SERVER_DEFAULT_PORT = 12345u;
-    const rounds_t SERVER_DEFAULT_ROUNDS = 50u;
-    const turn_t SERVER_DEFAULT_TURN = 6u;
-    const seed_t SERVER_DEFAULT_SEED = time(NULL);
-
-    struct GameOptions {
-        pixel_t width = SERVER_DEFAULT_WIDTH;
-        pixel_t height = SERVER_DEFAULT_HEIGHT;
-        rounds_t rounds_per_sec = SERVER_DEFAULT_ROUNDS;
-        turn_t turning_speed = SERVER_DEFAULT_TURN;
-        seed_t seed = SERVER_DEFAULT_SEED;
-    };
 
     /**
      * Exception thrown when server error occurs.
@@ -44,8 +32,6 @@ namespace siktacka {
      */
     class Server {
     private:
-        /// Options for current game
-        GameOptions game_options;
         /// Server UDP socket
         int sock;
         /// Server address bound to the socket.
@@ -54,6 +40,9 @@ namespace siktacka {
         bool stopping;
         /// Poll for async IO operations.
         std::unique_ptr<sik::Poll<1>> poll;
+
+        /// Current game
+        std::unique_ptr<Game> game;
 
     public:
         /**
@@ -81,6 +70,9 @@ namespace siktacka {
          */
         void run() noexcept;
 
+        /**
+         * Stops running server.
+         */
         void stop() noexcept;
 
     private:
@@ -97,5 +89,6 @@ namespace siktacka {
         void bind_socket(sik::port_t port);
     };
 }
+
 
 #endif

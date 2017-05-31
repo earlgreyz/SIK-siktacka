@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.7)
-project(SIK_sitacka)
+project(SIK_siktacka)
 
 set(CMAKE_CXX_STANDARD 14)
 set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
@@ -11,7 +11,7 @@ if(NOT Boost_FOUND)
     message(FATAL_ERROR "Required Boost not found")
 endif()
 
-set(SOURCE_FILES sik/poll.h error.h sik/types.h siktacka/types.h)
+set(SOURCE_FILES sik/poll.h error.h sik/types.h siktacka/types.h siktacka/game.cc siktacka/game.h)
 set(SERVER_SOURCE_FILES siktacka/server.cc siktacka/server.h sitacka-server.cpp)
 set(CLIENT_SOURCE_FILES sitacka-client.cpp)
 

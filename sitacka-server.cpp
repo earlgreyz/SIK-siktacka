@@ -5,14 +5,12 @@
 #include <boost/program_options.hpp>
 
 #include "error.h"
-#include "sik/types.h"
-#include "siktacka/types.h"
 #include "siktacka/server.h"
 
 
 namespace {
     sik::port_t server_port;
-    siktacka::GameOptions server_options;
+    siktacka::GameOptions game_options;
     std::unique_ptr<siktacka::Server> server;
 
     namespace po = boost::program_options;
@@ -26,12 +24,12 @@ namespace {
         description.add_options()
                 ("width,W",
                  po::value<siktacka::pixel_t>(
-                         &server_options.width)->default_value(
+                         &game_options.width)->default_value(
                          siktacka::SERVER_DEFAULT_WIDTH),
                  "Board width")
                 ("height,H",
                  po::value<siktacka::pixel_t>(
-                         &server_options.height)->default_value(
+                         &game_options.height)->default_value(
                          siktacka::SERVER_DEFAULT_HEIGHT),
                  "Board height")
                 ("port,p",
@@ -41,17 +39,17 @@ namespace {
                  "Port")
                 ("rounds,s",
                  po::value<siktacka::rounds_t>(
-                         &server_options.rounds_per_sec)->default_value(
+                         &game_options.rounds_per_sec)->default_value(
                          siktacka::SERVER_DEFAULT_ROUNDS),
                  "Rounds per second")
                 ("turn-speed,t",
                  po::value<siktacka::turn_t>(
-                         &server_options.turning_speed)->default_value(
+                         &game_options.turning_speed)->default_value(
                          siktacka::SERVER_DEFAULT_TURN),
                  "Turning speed")
                 ("seed,r",
                  po::value<siktacka::seed_t>(
-                         &server_options.seed)->default_value(
+                         &game_options.seed)->default_value(
                          time(NULL)),
                  "Random number generator seed");
         return std::move(description);
@@ -93,7 +91,7 @@ namespace {
 int main(int argc, char *argv[]) {
     try {
         parse_arguments(argc, argv);
-        server = std::make_unique<siktacka::Server>(server_port, server_options);
+        server = std::make_unique<siktacka::Server>(server_port, game_options);
         register_signals();
 
         server->run();
