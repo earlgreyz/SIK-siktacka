@@ -7,6 +7,7 @@
 #include "../../types.h"
 #include "../../../sik/types.h"
 
+
 namespace siktacka {
     /**
      * Message sent from server to client.
@@ -40,6 +41,22 @@ namespace siktacka {
          * @return data in raw bytes format.
          */
         sik::buffer_t to_bytes() const noexcept;
+
+        using iterator = std::vector<std::unique_ptr<Event>>::iterator;
+
+        /**
+        * @return iterator to the first element of events array.
+        */
+        iterator begin() {
+            return events.begin();
+        }
+
+        /**
+         * @return iterator to the last element of events array.
+         */
+        iterator end() {
+            return events.end();
+        }
     };
 }
 
