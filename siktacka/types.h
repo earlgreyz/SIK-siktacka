@@ -30,6 +30,8 @@ namespace siktacka {
         PLAYER_ELIMINATED = 2,
         GAME_OVER = 3
     };
+
+    using player_no_t = std::int8_t;
 }
 
 #endif
