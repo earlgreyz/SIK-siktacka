@@ -1,5 +1,4 @@
 #include "event.h"
-
 #include <boost/crc.hpp>
 
 using namespace siktacka;
