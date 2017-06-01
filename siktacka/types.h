@@ -12,16 +12,23 @@ namespace siktacka {
     using turn_speed_t = std::uint16_t;
     using seed_t = std::int64_t;
 
+    using game_t = std::uint32_t;
     using session_t = std::uint64_t;
-    using event_t = std::uint8_t;
     using event_no_t = std::uint32_t;
-    using event_len = std::uint32_t;
-    using crc_t = std::uint32_t;
+    using event_len_t = std::uint32_t;
+    using crc32_t = std::uint32_t;
 
-    enum turn_t : int8_t {
-        Left = -1,
-        Straight = 0,
-        Right = 1
+    enum turn_t: std::int8_t {
+        LEFT = -1,
+        NONE = 0,
+        RIGHT = 1
+    };
+
+    enum event_t: std::uint8_t {
+        NEW_GAME = 0,
+        PIXEL = 1,
+        PLAYER_ELIMINATED = 2,
+        GAME_OVER = 3
     };
 }
 

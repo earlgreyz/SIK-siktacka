@@ -1,6 +1,5 @@
 #include <stdexcept>
 #include "message.h"
-#include "../../utility.h"
 
 using namespace siktacka;
 
@@ -18,7 +17,7 @@ ClientMessage::ClientMessage(session_t session_id, turn_t turn_direction,
                              event_no_t next_event,
                              const std::string &player_name)
         : ClientMessage(session_id, turn_direction, next_event,
-                        std::move(std::string(player_name))) {}
+                        std::string(player_name)) {}
 
 ClientMessage::ClientMessage(session_t session_id, turn_t turn_direction,
                              event_no_t next_event, std::string &&player_name)
@@ -27,31 +26,40 @@ ClientMessage::ClientMessage(session_t session_id, turn_t turn_direction,
     validate();
 }
 
-ClientMessage::ClientMessage(const std::string &bytes) {
-    const char *data = bytes.c_str();
+ClientMessage::ClientMessage(const sik::buffer_t &bytes) {
+    const char *data = bytes.data();
     std::size_t off = 0u;
-    session_id = be64toh(*ptr_cast<session_t *>(data + off));
+
+    session_id = be64toh(*reinterpret_cast<const session_t *>(data + off));
     off += sizeof(session_t);
-    turn_direction = turn_from_value(*ptr_cast<std::int8_t *>(data + off));
+
+    turn_direction = turn_from_value(
+            *reinterpret_cast<const std::int8_t *>(data + off));
     off += sizeof(turn_t);
-    next_event = be32toh(*ptr_cast<event_no_t *>(data + off));
+
+    next_event = be32toh(*reinterpret_cast<const event_no_t *>(data + off));
     off += sizeof(event_no_t);
-    player_name = std::string(data + off);
+    player_name = std::string(data + off, bytes.size() - off);
+
     validate();
 }
 
-std::string ClientMessage::to_bytes() const noexcept {
+sik::buffer_t ClientMessage::to_bytes() const noexcept {
     const std::size_t data_length =
             sizeof(session_t) + sizeof(turn_t) + sizeof(event_no_t);
-    std::string bytes(data_length, 0);
-    const char *data = bytes.c_str();
+    sik::buffer_t bytes(data_length);
+    char *data = bytes.data();
     std::size_t off = 0u;
-    *ptr_cast<session_t *>(data + off) = htobe64(session_id);
+
+    *reinterpret_cast<session_t *>(data + off) = htobe64(session_id);
     off += sizeof(session_t);
-    *ptr_cast<turn_t *>(data + off) = turn_direction;
+
+    *reinterpret_cast<turn_t *>(data + off) = turn_direction;
     off += sizeof(turn_t);
-    *ptr_cast<event_no_t *>(data + off) = htobe32(next_event);
-    bytes.append(player_name);
+
+    *reinterpret_cast<event_no_t *>(data + off) = htobe32(next_event);
+    std::copy(player_name.begin(), player_name.end(),
+              std::back_inserter(bytes));
     return std::move(bytes);
 }
 

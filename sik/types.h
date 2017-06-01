@@ -2,10 +2,12 @@
 #define SIK_TYPES_H
 
 #include <cstdint>
+#include <vector>
 
 
 namespace sik {
     using port_t = std::uint16_t;
+    using buffer_t = std::vector<char>;
 }
 
 #endif
