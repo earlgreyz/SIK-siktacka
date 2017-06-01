@@ -13,7 +13,7 @@ if(NOT Boost_FOUND)
 endif()
 
 set(SOURCE_FILES sik/poll.h error.h sik/types.h siktacka/types.h siktacka/game.cc siktacka/game.h siktacka/protocol/client/message.cc siktacka/protocol/client/message.h siktacka/protocol/server/message.cc siktacka/protocol/server/message.h siktacka/utility.h siktacka/protocol/server/event_new_game.cc siktacka/protocol/server/event_new_game.h siktacka/protocol/server/constants.h siktacka/protocol/server/event.cc siktacka/protocol/server/event.h siktacka/protocol/server/event_pixel.cc siktacka/protocol/server/event_pixel.h siktacka/protocol/server/event_game_over.cc siktacka/protocol/server/event_game_over.h siktacka/protocol/server/event_player_eliminated.cc siktacka/protocol/server/event_player_eliminated.h)
-set(SERVER_SOURCE_FILES siktacka/server.cc siktacka/server.h sitacka-server.cpp)
+set(SERVER_SOURCE_FILES siktacka/server.cc siktacka/server.h sitacka-server.cpp siktacka/random.cc siktacka/random.h)
 set(CLIENT_SOURCE_FILES sitacka-client.cpp)
 
 add_executable(client ${SOURCE_FILES} ${CLIENT_SOURCE_FILES})

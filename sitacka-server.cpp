@@ -48,7 +48,7 @@ namespace {
                          siktacka::SERVER_DEFAULT_TURN),
                  "Turning speed")
                 ("seed,r",
-                 po::value<siktacka::seed_t>(
+                 po::value<siktacka::rand_t>(
                          &game_options.seed)->default_value(
                          time(NULL)),
                  "Random number generator seed");
