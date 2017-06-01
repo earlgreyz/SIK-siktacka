@@ -31,7 +31,7 @@ namespace siktacka {
         GAME_OVER = 3
     };
 
-    using player_no_t = std::int8_t;
+    using player_no_t = std::uint8_t;
 }
 
 #endif
