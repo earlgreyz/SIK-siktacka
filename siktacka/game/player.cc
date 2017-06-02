@@ -4,8 +4,8 @@
 
 using namespace siktacka;
 
-Player::Player(coordinate_x x, coordinate_x y, turn_t turn) noexcept
-        : x(x), y(y), turn(turn) {
+Player::Player(coordinate_x x, coordinate_x y, angle_t angle) noexcept
+        : x(x), y(y), angle(angle) {
 
 }
 
@@ -21,9 +21,13 @@ position_t Player::get_position() const noexcept {
     return std::make_pair(get_x(), get_y());
 }
 
-bool Player::move(direction_t direction, turn_speed_t speed) noexcept {
+void Player::turn(direction_t direction) {
+    this->direction = direction;
+}
+
+bool Player::move(turn_speed_t speed) noexcept {
     position_t last_posiion = get_position();
-    turn += direction * speed;
+    angle += static_cast<angle_t>(angle * speed) % 360;
     y += sin(y * M_PI / 180);
     x += cos(x * M_PI / 180);
     return last_posiion != get_position();
