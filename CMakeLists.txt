@@ -18,7 +18,7 @@ set(SOURCE_FILES
         siktacka/types.h siktacka/utility.h
 
         siktacka/game/game.cc siktacka/game/game.h
-        siktacka/game/player.cc siktacka/game/player.h
+        siktacka/game/snake.cc siktacka/game/snake.h
 
         siktacka/protocol/client/message.cc siktacka/protocol/client/message.h
 

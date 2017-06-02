@@ -8,11 +8,11 @@ ServerMessage::ServerMessage(game_t game_id) noexcept
     message_len = 0u;
 }
 
-void ServerMessage::add_event(std::unique_ptr<Event> event) {
+void ServerMessage::add_event(Event *event) {
     if (message_len + event->get_len() > MAX_MESSAGE_DATA_LEN) {
         throw std::overflow_error("Adding event would cause overflow");
     }
-    events.push_back(std::move(event));
+    events.push_back(event);
     message_len += event->get_len();
 }
 

@@ -8,55 +8,55 @@ namespace siktacka {
     using coordinate_x = double;
     using angle_t = int;
 
-    class Player {
+    class Snake {
     private:
-        /// Player current position x.
+        /// Snake current position x.
         coordinate_x x;
-        /// Player current position y
+        /// Snake current position y
         coordinate_x y;
-        /// Player current turn angle.
+        /// Snake current turn angle.
         angle_t angle;
 
-        /// Player move direction.
+        /// Snake move direction.
         direction_t direction;
 
         /**
-         * Calculates player x position in pixels.
+         * Calculates snake x position in pixels.
          * @return x position.
          */
         pixel_t get_x() const noexcept;
 
         /**
-         * Calculates player y position in pixels.
+         * Calculates snake y position in pixels.
          * @return y position.
          */
         pixel_t get_y() const noexcept;
 
     public:
         /**
-         * Creates new player at given position and turn angle.
+         * Creates new snake at given position and turn angle.
          * @param x x position.
          * @param y y position.
          * @param angle turn angle.
          */
-        Player(coordinate_x x, coordinate_x y, angle_t angle) noexcept;
+        Snake(coordinate_x x, coordinate_x y, angle_t angle) noexcept;
 
         /**
-         * Calculates player position in pixels.
-         * @return player position.
+         * Calculates snake position in pixels.
+         * @return snake position.
          */
         position_t get_position() const noexcept;
 
         /**
-         * Changes player move direction.
+         * Changes snake move direction.
          * @param direction new move direction.
          */
         void turn(direction_t direction) noexcept;
 
         /**
-         * Rotate player and move by one unit in calculated direction.
+         * Rotate snake and move by one unit in calculated direction.
          * @param speed turn speed.
-         * @return whether player actual (pixel) position has changed.
+         * @return whether snake actual (pixel) position has changed.
          */
         bool move(turn_speed_t speed) noexcept;
     };

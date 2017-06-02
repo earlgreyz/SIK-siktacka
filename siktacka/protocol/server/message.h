@@ -19,7 +19,7 @@ namespace siktacka {
         /// Message length
         std::size_t message_len;
         /// Events sent in message
-        std::vector<std::unique_ptr<Event>> events;
+        std::vector<Event *> events;
 
     public:
         /**
@@ -34,7 +34,7 @@ namespace siktacka {
          * message length.
          * @param event event to add.
          */
-        void add_event(std::unique_ptr<Event> event);
+        void add_event(Event *event);
 
         /**
          * Converts message into raw bytes
@@ -42,7 +42,7 @@ namespace siktacka {
          */
         sik::buffer_t to_bytes() const noexcept;
 
-        using iterator = std::vector<std::unique_ptr<Event>>::iterator;
+        using iterator = std::vector<Event *>::iterator;
 
         /**
         * @return iterator to the first element of events array.

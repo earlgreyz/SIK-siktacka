@@ -32,6 +32,10 @@ void EventNewGame::add_player(const std::string &player) {
 }
 
 void EventNewGame::add_player(std::string &&player) {
+    if (player.length() > MAX_PLAYER_NAME_LENGTH) {
+        throw std::invalid_argument(
+                "Player name cannot be longer than 64 characters");
+    }
     if (players_len + player.length() + 1 > MAX_EVENT_DATA_LEN) {
         throw std::overflow_error("Adding player would exceed max length");
     }

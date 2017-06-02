@@ -1,12 +1,13 @@
 #ifndef SIK_SIKTACKA_EVENT_NEW_GAME_H
 #define SIK_SIKTACKA_EVENT_NEW_GAME_H
 
-#include <vector>
+#include <set>
 #include "event.h"
 
 
 namespace siktacka {
     constexpr std::size_t EVENT_NEW_GAME_HEADER_LEN = sizeof(pixel_t) * 2;
+    constexpr std::size_t MAX_PLAYER_NAME_LENGTH = 64u;
 
     /**
      * Event NEW_GAME.
@@ -18,7 +19,7 @@ namespace siktacka {
         /// Board height
         pixel_t max_y;
         /// Player names
-        std::vector<std::string> players;
+        std::set<std::string> players;
         /// Length of player names
         std::size_t players_len;
 
