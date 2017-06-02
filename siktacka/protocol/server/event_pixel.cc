@@ -2,10 +2,11 @@
 
 using namespace siktacka;
 
-EventPixel::EventPixel(event_no_t event_no, player_no_t player_no, pixel_t x,
-                       pixel_t y) noexcept
-        : Event(event_no, event_t::PIXEL), player_no(player_no), x(x), y(y) {
-
+EventPixel::EventPixel(event_no_t event_no, player_no_t player_no,
+                       position_t position) noexcept
+        : Event(event_no, event_t::PIXEL), player_no(player_no) {
+    x = position.first;
+    y = position.second;
 }
 
 sik::buffer_t EventPixel::get_data() const noexcept {

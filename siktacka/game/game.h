@@ -117,12 +117,30 @@ namespace siktacka {
         /**
          * Starts the game round if all players are ready.
          */
-        void start();
+        void start() noexcept;
 
         /**
          * Performs single game loop iteration.
          */
-        void request_frame();
+        void request_frame() noexcept;
+
+        /**
+         * Starts new game.
+         */
+        void new_game() noexcept ;
+
+        /**
+         * Creates new snake at random position with random rotation.
+         * @return new snake.
+         */
+        std::unique_ptr<Snake> make_snake() noexcept;
+
+        /**
+         * Places snake pixel on the board.
+         * @param snake snake to place.
+         * @param player_no snake owner.
+         */
+        void place_snake(Snake *snake, player_no_t player_no) noexcept;
     };
 }
 

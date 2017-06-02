@@ -28,11 +28,10 @@ namespace siktacka {
          * Constructs new event pixel.
          * @param event_no event ordinal.
          * @param player_no player number.
-         * @param x x coordinate.
-         * @param y y coordinate.
+         * @param position player coordinates.
          */
-        EventPixel(event_no_t event_no, player_no_t player_no, pixel_t x,
-                   pixel_t y) noexcept;
+        EventPixel(event_no_t event_no, player_no_t player_no,
+                   position_t position) noexcept;
 
         /**
          * Calculates length of event bytes representation.
