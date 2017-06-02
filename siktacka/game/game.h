@@ -4,6 +4,7 @@
 #include <ctime>
 #include <memory>
 #include <map>
+#include <list>
 #include "snake.h"
 #include "board.h"
 #include "../types.h"
@@ -47,7 +48,7 @@ namespace siktacka {
         std::unique_ptr<EventNewGame> event_new_game;
         std::uint8_t ready_players_count;
 
-        std::set<std::string> waiting_players;;
+        std::list<std::string> waiting_players;;
 
     public:
         /**
@@ -98,6 +99,11 @@ namespace siktacka {
          * @param name new player name.
          */
         void add_active_player(const std::string &name) noexcept;
+
+        /**
+         * Advances waiting players into active players pool.
+         */
+        void advance_waiting_players() noexcept;
 
         /**
          * Reacts to player action when the game hasn't been started.

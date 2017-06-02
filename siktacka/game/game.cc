@@ -1,9 +1,22 @@
+#include <algorithm>
 #include "game.h"
 #include "../protocol/server/event_player_eliminated.h"
 #include "../protocol/server/event_pixel.h"
 #include "../protocol/server/event_game_over.h"
 
 using namespace siktacka;
+
+namespace {
+    template <typename T>
+    inline auto list_find(std::list<T> list, T element) {
+        return std::find(list.begin(), list.end(), element);
+    }
+
+    template <typename T>
+    inline bool list_contains(std::list<T> list, T element) {
+        return std::find(list.begin(), list.end(), element) != list.end();
+    }
+}
 
 
 Game::Game(const siktacka::GameOptions &game_options) noexcept
@@ -20,12 +33,15 @@ void Game::initialize() {
     game_id = random->next();
     ready_players_count = 0u;
     event_new_game = std::make_unique<EventNewGame>(
-            game_options.width, game_options.height, 0u);
+            game_options.width,
+            game_options.height,
+            0u
+    );
     // TODO: Move players from waiting to new
 }
 
 void Game::add_player(const std::string &name) noexcept {
-    if (players.count(name) || waiting_players.count(name)) {
+    if (players.count(name) || list_contains(waiting_players, name)) {
         throw std::invalid_argument("Player already in game");
     }
 
@@ -37,7 +53,7 @@ void Game::add_player(const std::string &name) noexcept {
 }
 
 void Game::add_waiting_player(const std::string &name) noexcept {
-    waiting_players.insert(name);
+    waiting_players.push_back(name);
 }
 
 void Game::add_active_player(const std::string &name) noexcept {
@@ -79,9 +95,9 @@ Game::running_action(const Player &player, direction_t direction) noexcept {
 }
 
 void Game::remove_player(const std::string &name) noexcept {
-    // If the player is waiting just remove him
-    if (waiting_players.count(name)) {
-        waiting_players.erase(name);
+    auto player = list_find(waiting_players, name);
+    if (player != waiting_players.end()) {
+        waiting_players.erase(player);
         return;
     }
 
@@ -106,12 +122,11 @@ void Game::start() noexcept {
     }
     running = true;
     new_game();
-
     // TODO: start main game loop
 }
 
 void Game::request_frame() noexcept {
-    if (snakes_alive == 1) {
+    if (snakes_alive <= 1) {
         // TODO: stop main game loop
         events.push_back(std::make_unique<EventGameOver>(events.size()));
         return;
@@ -127,10 +142,9 @@ void Game::request_frame() noexcept {
 }
 
 void Game::new_game() noexcept {
+    board->clear();
     snakes.clear();
     events.clear();
-    board->clear();
-
     events.push_back(std::move(event_new_game));
 
     player_no_t player_no = 0u;
