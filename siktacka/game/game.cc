@@ -9,4 +9,5 @@ Game::Game(const siktacka::GameOptions &game_options) noexcept
 
 Game::Game(siktacka::GameOptions &&game_options) noexcept
         : game_options(game_options) {
+    random = std::make_unique<Random>(game_options.seed);
 }

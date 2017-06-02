@@ -11,7 +11,7 @@ namespace siktacka {
     class ClientMessage {
     private:
         session_t session_id;
-        turn_t turn_direction;
+        direction_t turn_direction;
         event_no_t next_event;
         std::string player_name;
 
@@ -25,7 +25,7 @@ namespace siktacka {
          * observer and does not take active part in the game.
          * @throws std::invalid_arguments
          */
-        ClientMessage(session_t session_id, turn_t turn_direction,
+        ClientMessage(session_t session_id, direction_t turn_direction,
                       event_no_t next_event, const std::string &player_name);
 
         /**
@@ -36,7 +36,7 @@ namespace siktacka {
          * @param player_name Player name or empty string
          * @throws std::invalid_arguments
          */
-        ClientMessage(session_t session_id, turn_t turn_direction,
+        ClientMessage(session_t session_id, direction_t turn_direction,
                       event_no_t next_event, std::string &&player_name = "");
 
         /**

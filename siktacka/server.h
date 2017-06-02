@@ -6,7 +6,7 @@
 #include <netinet/in.h>
 
 #include "types.h"
-#include "game.h"
+#include "game/game.h"
 #include "../error.h"
 #include "../sik/types.h"
 #include "../sik/poll.h"

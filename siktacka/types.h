@@ -18,7 +18,7 @@ namespace siktacka {
     using event_len_t = std::uint32_t;
     using crc32_t = std::uint32_t;
 
-    enum turn_t: std::int8_t {
+    enum direction_t: std::int8_t {
         LEFT = -1,
         NONE = 0,
         RIGHT = 1
@@ -32,6 +32,8 @@ namespace siktacka {
     };
 
     using player_no_t = std::uint8_t;
+
+    using position_t = std::pair<pixel_t, pixel_t>;
 }
 
 #endif
