@@ -35,7 +35,9 @@ set(SOURCE_FILES
 set(SERVER_SOURCE_FILES
         siktacka/random.cc siktacka/random.h
         siktacka/server.cc siktacka/server.h
+        siktacka/game/board.cc siktacka/game/board.h
         sitacka-server.cpp)
+
 set(CLIENT_SOURCE_FILES sitacka-client.cpp)
 
 add_executable(client ${SOURCE_FILES} ${CLIENT_SOURCE_FILES})

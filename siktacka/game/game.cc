@@ -1,8 +1,9 @@
 #include "game.h"
-
-#include <utility>
+#include "../protocol/server/event_player_eliminated.h"
+#include "../protocol/server/event_pixel.h"
 
 using namespace siktacka;
+
 
 Game::Game(const siktacka::GameOptions &game_options) noexcept
         : Game(GameOptions(game_options)) {}
@@ -10,13 +11,23 @@ Game::Game(const siktacka::GameOptions &game_options) noexcept
 Game::Game(siktacka::GameOptions &&game_options) noexcept
         : game_options(game_options) {
     random = std::make_unique<Random>(game_options.seed);
+    board = std::make_unique<Board>(game_options.width, game_options.height);
+    initialize();
 }
 
 void Game::initialize() {
     game_id = random->next();
-    event_new_game = std::make_unique<EventNewGame>(
-            game_options.width, game_options.height, game_id);
+
+    snakes.clear();
+    events.clear();
+    board->clear();
+
+    snakes_alive = 0u;
     ready_players_count = 0u;
+
+    event_new_game = std::make_unique<EventNewGame>(
+            game_options.width, game_options.height, events.size());
+
 }
 
 void Game::add_player(const std::string &name) noexcept {
@@ -65,7 +76,7 @@ void Game::starting_action(Player &player, direction_t direction) noexcept {
     }
     player.ready = true;
     ++ready_players_count;
-    run();
+    start();
 }
 
 void
@@ -83,12 +94,11 @@ void Game::remove_player(const std::string &name) noexcept {
     try {
         Player &player = players.at(name);
         if (!running) {
-            // If player was ready decrease
             if (player.ready) {
                 --ready_players_count;
-            } else {
-                run();
             }
+            // TODO: try adding one of the waiting users.
+            start();
         }
         players.erase(name);
     } catch (const std::out_of_range &) {
@@ -96,11 +106,67 @@ void Game::remove_player(const std::string &name) noexcept {
     }
 }
 
-void Game::run() {
+void Game::start() {
     // Check if all players are ready to start the game
     if (players.size() == 0 || ready_players_count < players.size()) {
         return;
     }
     running = true;
     events.push_back(std::move(event_new_game));
+
+    player_no_t player_no = 0;
+    for (auto &player: players) {
+        player.second.player_no = player_no++;
+    }
+
+    for (player_no_t i = 0; i < players.size(); i++) {
+        std::unique_ptr<Snake> snake = std::make_unique<Snake>(
+                random->next() % game_options.width + .5,
+                random->next() % game_options.height + .5,
+                random->next() % 360
+        );
+        position_t snake_position = snake->get_position();
+        if (board->is_empty(snake_position)) {
+            snake->die();
+            events.push_back(
+                    std::make_unique<EventPlayerEliminated>(events.size(), i));
+        } else {
+            snakes_alive++;
+            board->mark_occupied(snake_position);
+            events.push_back(std::make_unique<EventPixel>(
+                    events.size(), i,
+                    snake_position.first, snake_position.second
+            ));
+        }
+        snakes.push_back(std::move(snake));
+    }
+
+    // TODO: start main game loop
+}
+
+void Game::request_frame() {
+    if (snakes_alive == 1) {
+
+    }
+    for (player_no_t i = 0; i < snakes.size(); i++) {
+        Snake *snake = snakes[i].get();
+
+        // If snake is dead or hasn't changed its position just continue
+        if (!snake->is_alive() || !snake->move(game_options.turning_speed)) {
+            continue;
+        }
+
+        position_t snake_position = snake->get_position();
+        if (board->is_empty(snake_position)) {
+            snake->die();
+            events.push_back(
+                    std::make_unique<EventPlayerEliminated>(events.size(), i));
+        } else {
+            board->mark_occupied(snake_position);
+            events.push_back(std::make_unique<EventPixel>(
+                    events.size(), i,
+                    snake_position.first, snake_position.second
+            ));
+        }
+    }
 }

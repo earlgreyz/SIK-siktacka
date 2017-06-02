@@ -40,7 +40,7 @@ void EventNewGame::add_player(std::string &&player) {
         throw std::overflow_error("Adding player would exceed max length");
     }
     players_len += player.length() + 1;
-    players.push_back(player);
+    players.insert(player);
 }
 
 std::size_t EventNewGame::get_len() const noexcept {

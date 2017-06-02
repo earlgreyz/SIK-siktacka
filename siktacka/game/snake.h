@@ -20,6 +20,9 @@ namespace siktacka {
         /// Snake move direction.
         direction_t direction;
 
+        /// Indicates whether snake is alive.
+        bool alive;
+
         /**
          * Calculates snake x position in pixels.
          * @return x position.
@@ -59,6 +62,16 @@ namespace siktacka {
          * @return whether snake actual (pixel) position has changed.
          */
         bool move(turn_speed_t speed) noexcept;
+
+        /**
+         * Sets snake alive attribute to false.
+         */
+        void die() noexcept;
+
+        /**
+         * Returns snake alive status.
+         */
+        bool is_alive() const noexcept;
     };
 }
 

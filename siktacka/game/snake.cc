@@ -5,7 +5,7 @@
 using namespace siktacka;
 
 Snake::Snake(coordinate_x x, coordinate_x y, angle_t angle) noexcept
-        : x(x), y(y), angle(angle) {
+        : x(x), y(y), angle(angle), alive(true) {
 
 }
 
@@ -21,7 +21,7 @@ position_t Snake::get_position() const noexcept {
     return std::make_pair(get_x(), get_y());
 }
 
-void Snake::turn(direction_t direction) {
+void Snake::turn(direction_t direction) noexcept {
     this->direction = direction;
 }
 
@@ -31,4 +31,12 @@ bool Snake::move(turn_speed_t speed) noexcept {
     y += sin(y * M_PI / 180);
     x += cos(x * M_PI / 180);
     return last_posiion != get_position();
+}
+
+void Snake::die() noexcept {
+    alive = false;
+}
+
+bool Snake::is_alive() const noexcept {
+    return alive;
 }
