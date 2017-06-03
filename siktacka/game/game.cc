@@ -97,6 +97,10 @@ void Game::start() noexcept {
 }
 
 void Game::request_next_frame() noexcept {
+    if (!running) {
+        return;
+    }
+
     itimerval itm;
     itm.it_interval.tv_sec = 0;
     itm.it_value.tv_sec = 0;
@@ -109,6 +113,8 @@ void Game::request_next_frame() noexcept {
 }
 
 void Game::do_frame() noexcept {
+    request_next_frame();
+
     if (snakes_alive_count <= 1) {
         events.push_back(std::make_unique<EventGameOver>(events.size()));
         running = false;
@@ -123,8 +129,6 @@ void Game::do_frame() noexcept {
         }
         place_snake(snake, i);
     }
-
-    request_next_frame();
 }
 
 void Game::new_game() noexcept {

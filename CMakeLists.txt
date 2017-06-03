@@ -30,13 +30,14 @@ set(SOURCE_FILES
         siktacka/protocol/server/event_pixel.cc siktacka/protocol/server/event_pixel.h
         siktacka/protocol/server/event_game_over.cc siktacka/protocol/server/event_game_over.h
         siktacka/protocol/server/event_player_eliminated.cc siktacka/protocol/server/event_player_eliminated.h
-        )
+        sik/sender.cc sik/sender.h
+        sik/receiver.cc sik/receiver.h)
 
 set(SERVER_SOURCE_FILES
         siktacka/random.cc siktacka/random.h
         siktacka/server.cc siktacka/server.h
         siktacka/game/board.cc siktacka/game/board.h
-        sitacka-server.cpp)
+        sitacka-server.cpp siktacka/connections.cc siktacka/connections.h)
 
 set(CLIENT_SOURCE_FILES sitacka-client.cpp)
 

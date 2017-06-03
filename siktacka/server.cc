@@ -1,6 +1,4 @@
 #include "server.h"
-
-#include <iostream>
 #include <unistd.h>
 #include <fcntl.h>
 
@@ -21,6 +19,8 @@ Server::Server(sik::port_t port, GameOptions &&game_options) {
     }
 
     game = std::make_unique<Game>(std::move(game_options));
+    sender = std::make_unique<sik::Sender>(sock);
+    receiver = std::make_unique<sik::Receiver>(sock);
 }
 
 void Server::bind_socket(sik::port_t port) {
@@ -57,9 +57,25 @@ void Server::run() noexcept {
         if (stopping) {
             return;
         }
+
+        if ((*poll)[sock].revents & POLLIN) {
+            receive_message();
+        }
+
+        if ((*poll)[sock].revents & POLLOUT) {
+            send_message();
+        }
     }
 }
 
 void Server::stop() noexcept {
     stopping = true;
+}
+
+void Server::send_message() {
+
+}
+
+void Server::receive_message() {
+
 }

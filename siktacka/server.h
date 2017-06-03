@@ -4,12 +4,16 @@
 #include <string>
 #include <memory>
 #include <netinet/in.h>
+#include <queue>
 
 #include "types.h"
 #include "game/game.h"
 #include "../error.h"
 #include "../sik/types.h"
 #include "../sik/poll.h"
+#include "../sik/sender.h"
+#include "../sik/receiver.h"
+#include "protocol/server/message.h"
 
 
 namespace siktacka {
@@ -43,6 +47,10 @@ namespace siktacka {
 
         /// Current game
         std::unique_ptr<Game> game;
+        std::queue<std::unique_ptr<ServerMessage>> messages;
+
+        std::unique_ptr<sik::Sender> sender;
+        std::unique_ptr<sik::Receiver> receiver;
 
     public:
         /**
@@ -87,6 +95,10 @@ namespace siktacka {
          * @throws ServerException when binding fails.
          */
         void bind_socket(sik::port_t port);
+
+        void send_message();
+
+        void receive_message();
     };
 }
 
