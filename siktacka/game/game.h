@@ -9,6 +9,7 @@
 #include "../types.h"
 #include "../random.h"
 #include "../protocol/server/event_new_game.h"
+#include "../signal.h"
 
 namespace siktacka {
     const pixel_t SERVER_DEFAULT_WIDTH = 800u;
@@ -46,7 +47,7 @@ namespace siktacka {
         std::size_t snakes_alive_count;
         std::vector<std::unique_ptr<Event>> events;
 
-        std::unique_ptr<EventNewGame> event_new_game;
+        SignalScope<SIGALRM> frame_signal;
 
     public:
         /**
@@ -107,9 +108,14 @@ namespace siktacka {
         void start() noexcept;
 
         /**
+         * Registers signal to perform next frame.
+         */
+        void request_next_frame() noexcept;
+
+        /**
          * Performs single game loop iteration.
          */
-        void request_frame() noexcept;
+        void do_frame() noexcept;
 
         /**
          * Starts new game.

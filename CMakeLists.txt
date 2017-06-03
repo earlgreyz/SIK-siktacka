@@ -15,7 +15,7 @@ endif()
 set(SOURCE_FILES
         error.h
         sik/poll.h sik/types.h
-        siktacka/types.h siktacka/utility.h
+        siktacka/types.h siktacka/signal.h
 
         siktacka/game/game.cc siktacka/game/game.h
         siktacka/game/snake.cc siktacka/game/snake.h

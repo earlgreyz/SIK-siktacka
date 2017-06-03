@@ -1,4 +1,6 @@
 #include <algorithm>
+#include <csignal>
+#include <sys/time.h>
 #include "game.h"
 #include "../protocol/server/event_player_eliminated.h"
 #include "../protocol/server/event_pixel.h"
@@ -11,7 +13,7 @@ Game::Game(const siktacka::GameOptions &game_options) noexcept
         : Game(GameOptions(game_options)) {}
 
 Game::Game(siktacka::GameOptions &&game_options) noexcept
-        : game_options(game_options) {
+        : game_options(game_options), frame_signal([&](int) { do_frame(); }) {
     random = std::make_unique<Random>(game_options.seed);
     board = std::make_unique<Board>(game_options.width, game_options.height);
     initialize();
@@ -89,14 +91,28 @@ void Game::start() noexcept {
         return;
     }
     running = true;
+
     new_game();
-    // TODO: start main game loop
+    request_next_frame();
 }
 
-void Game::request_frame() noexcept {
+void Game::request_next_frame() noexcept {
+    itimerval itm;
+    itm.it_interval.tv_sec = 0;
+    itm.it_value.tv_sec = 0;
+    itm.it_interval.tv_usec = 1000000 / game_options.rounds_per_sec;
+    itm.it_value.tv_usec = 1000000 / game_options.rounds_per_sec;
+
+    if (setitimer(ITIMER_REAL, &itm, 0) != 0) {
+        // TODO: Print error
+    }
+}
+
+void Game::do_frame() noexcept {
     if (snakes_alive_count <= 1) {
-        // TODO: stop main game loop
         events.push_back(std::make_unique<EventGameOver>(events.size()));
+        running = false;
+        initialize();
         return;
     }
 
@@ -107,6 +123,8 @@ void Game::request_frame() noexcept {
         }
         place_snake(snake, i);
     }
+
+    request_next_frame();
 }
 
 void Game::new_game() noexcept {
@@ -164,3 +182,4 @@ void Game::place_snake(Snake *snake, player_no_t player_no) noexcept {
         ));
     }
 }
+
