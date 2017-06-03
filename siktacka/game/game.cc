@@ -6,18 +6,6 @@
 
 using namespace siktacka;
 
-namespace {
-    template <typename T>
-    inline auto list_find(std::list<T> list, T element) {
-        return std::find(list.begin(), list.end(), element);
-    }
-
-    template <typename T>
-    inline bool list_contains(std::list<T> list, T element) {
-        return std::find(list.begin(), list.end(), element) != list.end();
-    }
-}
-
 
 Game::Game(const siktacka::GameOptions &game_options) noexcept
         : Game(GameOptions(game_options)) {}
@@ -31,40 +19,24 @@ Game::Game(siktacka::GameOptions &&game_options) noexcept
 
 void Game::initialize() {
     game_id = random->next();
-    ready_players_count = 0u;
-    event_new_game = std::make_unique<EventNewGame>(
-            game_options.width,
-            game_options.height,
-            0u
-    );
-    // TODO: Move players from waiting to new
+    players_ready_count = 0u;
+    for (auto &player: players) {
+        player.second.ready = false;
+        player.second.in_game = false;
+    }
 }
 
 void Game::add_player(const std::string &name) noexcept {
-    if (players.count(name) || list_contains(waiting_players, name)) {
+    if (name.length() > MAX_PLAYER_NAME_LENGTH) {
+        throw std::invalid_argument(
+                "Player name cannot be longer than 64 characters");
+    }
+
+    if (players.count(name)) {
         throw std::invalid_argument("Player already in game");
     }
 
-    if (!running) {
-        add_active_player(name);
-    } else {
-        add_waiting_player(name);
-    }
-}
-
-void Game::add_waiting_player(const std::string &name) noexcept {
-    waiting_players.push_back(name);
-}
-
-void Game::add_active_player(const std::string &name) noexcept {
-    try {
-        event_new_game->add_player(name);
-        players.insert(std::make_pair(name, Player()));
-    } catch (const std::overflow_error &) {
-        add_waiting_player(name);
-    } catch (const std::invalid_argument &) {
-        return;
-    }
+    players.insert(std::make_pair(name, Player()));
 }
 
 void Game::player_action(const std::string &name, direction_t direction) {
@@ -85,29 +57,25 @@ void Game::starting_action(Player &player, direction_t direction) noexcept {
         return;
     }
     player.ready = true;
-    ++ready_players_count;
+    ++players_ready_count;
     start();
 }
 
 void
 Game::running_action(const Player &player, direction_t direction) noexcept {
+    if (!player.in_game) {
+        return;
+    }
     snakes[player.player_no]->turn(direction);
 }
 
 void Game::remove_player(const std::string &name) noexcept {
-    auto player = list_find(waiting_players, name);
-    if (player != waiting_players.end()) {
-        waiting_players.erase(player);
-        return;
-    }
-
     try {
         Player &player = players.at(name);
         if (!running) {
             if (player.ready) {
-                --ready_players_count;
+                --players_ready_count;
             }
-            // TODO: try adding one of the waiting users.
             start();
         }
         players.erase(name);
@@ -117,7 +85,7 @@ void Game::remove_player(const std::string &name) noexcept {
 }
 
 void Game::start() noexcept {
-    if (players.size() == 0 || ready_players_count < players.size()) {
+    if (players.size() == 0 || players_ready_count < players.size()) {
         return;
     }
     running = true;
@@ -126,7 +94,7 @@ void Game::start() noexcept {
 }
 
 void Game::request_frame() noexcept {
-    if (snakes_alive <= 1) {
+    if (snakes_alive_count <= 1) {
         // TODO: stop main game loop
         events.push_back(std::make_unique<EventGameOver>(events.size()));
         return;
@@ -142,22 +110,36 @@ void Game::request_frame() noexcept {
 }
 
 void Game::new_game() noexcept {
+    player_no_t player_no = 0u;
+
     board->clear();
     snakes.clear();
     events.clear();
-    events.push_back(std::move(event_new_game));
 
-    player_no_t player_no = 0u;
+    std::unique_ptr<EventNewGame> event_new_game =
+            std::make_unique<EventNewGame>(
+                    game_options.width, game_options.height, 0u);
+
     for (auto &player: players) {
-        player.second.player_no = player_no++;
+        try {
+            event_new_game->add_player(player.first);
+            player.second.player_no = player_no;
+            player.second.in_game = true;
+            std::unique_ptr<Snake> snake = make_snake();
+            place_snake(snake.get(), player_no);
+            snakes.push_back(std::move(snake));
+            player_no++;
+        } catch (const std::overflow_error &) {
+            // Player name doesn't fit int the new game message skip
+            continue;
+        } catch (const std::invalid_argument &) {
+            // Player name is not a valid name skip
+            continue;
+        }
     }
 
-    snakes_alive = players.size();
-    for (player_no_t i = 0; i < players.size(); i++) {
-        std::unique_ptr<Snake> snake = make_snake();
-        place_snake(snake.get(), player_no);
-        snakes.push_back(std::move(snake));
-    }
+    snakes_alive_count = player_no - 1u;
+    events.push_back(std::move(event_new_game));
 }
 
 std::unique_ptr<Snake> Game::make_snake() noexcept {
@@ -176,7 +158,7 @@ void Game::place_snake(Snake *snake, player_no_t player_no) noexcept {
                 events.size(), player_no, snake_position
         ));
     } else {
-        snakes_alive--;
+        snakes_alive_count--;
         events.push_back(std::make_unique<EventPlayerEliminated>(
                 events.size(), player_no
         ));
