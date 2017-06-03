@@ -9,6 +9,8 @@ namespace siktacka {
     class Board {
     private:
         std::vector<std::vector<bool>> fields;
+        pixel_t width;
+        pixel_t height;
     public:
         Board(pixel_t width, pixel_t height) noexcept;
         void clear() noexcept;
