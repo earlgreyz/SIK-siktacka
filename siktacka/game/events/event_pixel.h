@@ -33,6 +33,9 @@ namespace siktacka {
         EventPixel(event_no_t event_no, player_no_t player_no,
                    position_t position) noexcept;
 
+        EventPixel(event_no_t event_no, const char *data,
+                   std::size_t length);
+
         /**
          * Calculates length of event bytes representation.
          * @return length of event bytes representation.

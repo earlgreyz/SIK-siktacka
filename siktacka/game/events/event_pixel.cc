@@ -27,3 +27,22 @@ network::buffer_t EventPixel::get_data() const noexcept {
 std::size_t EventPixel::get_len() const noexcept {
     return Event::get_len() + EVENT_PIXEL_HEADER_LEN;
 }
+
+EventPixel::EventPixel(event_no_t event_no, const char *data,
+                       std::size_t length)
+        : Event(event_no, event_t::PIXEL) {
+    std::size_t off = 0u;
+
+    // Check length to avoid unallocated memory access
+    if (length != EVENT_PIXEL_HEADER_LEN) {
+        throw std::invalid_argument("Unexpected end of data");
+    }
+
+    player_no = *reinterpret_cast<const player_no_t *>(data + off);
+    off += sizeof(player_no_t);
+
+    x = be32toh(*reinterpret_cast<const pixel_t *>(data + off));
+    off += sizeof(pixel_t);
+
+    y = be32toh(*reinterpret_cast<const pixel_t *>(data + off));
+}

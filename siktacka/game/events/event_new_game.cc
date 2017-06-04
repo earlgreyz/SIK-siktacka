@@ -51,11 +51,18 @@ EventNewGame::EventNewGame(event_no_t event_no, const char *data,
                            std::size_t length)
         : Event(event_no, event_t::NEW_GAME) {
     std::size_t off = 0u;
-    if (length < EVENT_NEW_GAME_HEADER_LEN + 4) {
+
+    // Check length to avoid unallocated memory access
+    // 4u is at least 2 players with single letter and '\0'
+    if (length < EVENT_NEW_GAME_HEADER_LEN + 4u) {
         throw std::invalid_argument("Unexpected end of data");
     }
+
+    // Parse width
     max_x = be32toh(*reinterpret_cast<const pixel_t *>(data + off));
     off += sizeof(pixel_t);
+
+    // Parse height
     max_y = be32toh(*reinterpret_cast<const pixel_t *>(data + off));
     off += sizeof(pixel_t);
 
@@ -64,6 +71,7 @@ EventNewGame::EventNewGame(event_no_t event_no, const char *data,
         throw std::invalid_argument("Invalid username");
     }
 
+    // Parse names
     while (off < length) {
         std::string player_name(data + off);
         try {

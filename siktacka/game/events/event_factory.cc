@@ -1,6 +1,7 @@
 #include <boost/crc.hpp>
 #include "event_factory.h"
 #include "event_new_game.h"
+#include "event_pixel.h"
 
 using namespace siktacka;
 
@@ -10,13 +11,6 @@ namespace {
         boost::crc_32_type result;
         result.process_bytes(bytes.data() + offset, size);
         return static_cast<crc32_t>(result.checksum());
-    }
-
-    event_t event_t_from_value(std::uint8_t value) {
-        if (value > 3) {
-            throw std::invalid_argument("Invalid event type value");
-        }
-        return static_cast<event_t>(value);
     }
 }
 
@@ -68,7 +62,8 @@ EventFactory::make(const network::buffer_t &buffer, std::size_t offset) const {
             return std::make_shared<EventNewGame>(
                     event_no, event_data, data_len);
         case event_t::PIXEL:
-            break;
+            return std::make_shared<EventPixel>(
+                    event_no, event_data, data_len);
         case event_t::PLAYER_ELIMINATED:
             break;
         case event_t::GAME_OVER:
