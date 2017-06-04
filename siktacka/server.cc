@@ -1,5 +1,4 @@
 #include "server.h"
-#include "protocol/client/message.h"
 #include <unistd.h>
 #include <fcntl.h>
 #include <iostream>
@@ -58,8 +57,12 @@ void Server::on_event(std::unique_ptr<Event> event) {
     std::unique_ptr<ServerMessage> message = std::make_unique<ServerMessage>(
             game->get_id());
     message->add_event(event.get());
-    messages.push(std::make_pair(std::move(message), clients));
-    (*poll)[sock].events = POLLIN | POLLOUT;
+
+    {
+        std::lock_guard<std::mutex> guard(messages_mutex);
+        messages.push(std::make_pair(std::move(message), clients));
+        (*poll)[sock].events = POLLIN | POLLOUT;
+    }
 
     if (event->get_event_type() == event_t::GAME_OVER) {
         events->clear();
@@ -101,19 +104,23 @@ void Server::stop() noexcept {
 }
 
 void Server::send_message() {
-    while (messages.size() > 0 && messages.front().second.empty()) {
-        messages.pop();
+    {
+        std::lock_guard<std::mutex> guard(messages_mutex);
+        while (messages.size() > 0 && messages.front().second.empty()) {
+            messages.pop();
+        }
+
+        if (messages.size() == 0) {
+            (*poll)[sock].events = POLLIN;
+            return;
+        }
     }
 
-    if (messages.size() == 0) {
-        (*poll)[sock].events = POLLIN;
-        return;
-    }
+    MessageInstance &mi = messages.front();
 
     try {
-        sender->send_message(messages.front().second.front(),
-                             messages.front().first->to_bytes());
-        messages.front().second.pop();
+        sender->send_message(mi.second.front(), mi.first->to_bytes());
+        mi.second.pop();
     } catch (const network::WouldBlockException &) {
         return;
     }
@@ -165,6 +172,8 @@ void Server::make_message(event_no_t next_event, sockaddr_in client_address) {
         }
         message_events.pop();
     }
+
+    std::lock_guard<std::mutex> guard(messages_mutex);
     messages.push(std::make_pair(std::move(message), client));
     (*poll)[sock].events = POLLIN | POLLOUT;
 }

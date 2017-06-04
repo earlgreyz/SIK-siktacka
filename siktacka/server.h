@@ -5,6 +5,7 @@
 #include <memory>
 #include <netinet/in.h>
 #include <queue>
+#include <mutex>
 
 #include "types.h"
 #include "game/game.h"
@@ -56,6 +57,7 @@ namespace siktacka {
         std::unique_ptr<Events> events;
         std::unique_ptr<Game> game;
         std::queue<MessageInstance> messages;
+        std::mutex messages_mutex;
 
         // Server helper structures
         std::unique_ptr<network::Connections> connections;
