@@ -8,7 +8,7 @@ ServerMessage::ServerMessage(game_t game_id) noexcept
     message_len = 0u;
 }
 
-void ServerMessage::add_event(Event *event) {
+void ServerMessage::add_event(std::shared_ptr<Event> event) {
     if (message_len + event->get_len() > MAX_MESSAGE_DATA_LEN) {
         throw std::overflow_error("Adding event would cause overflow");
     }
@@ -25,4 +25,8 @@ network::buffer_t ServerMessage::to_bytes() const noexcept {
                   std::back_inserter(bytes));
     }
     return bytes;
+}
+
+ServerMessage::ServerMessage(const network::buffer_t &bytes) {
+    game_id = be32toh(*reinterpret_cast<const game_t *>(bytes.data()));
 }

@@ -88,7 +88,7 @@ namespace siktacka {
          * Creates a massage with new event to send to clients.
          * @param event event
          */
-        void on_event(std::unique_ptr<Event> event) override;
+        void on_event(std::shared_ptr<Event> event) override;
 
         /**
          * Implements IConnectionListener interface.

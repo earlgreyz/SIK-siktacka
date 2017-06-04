@@ -49,14 +49,14 @@ Server::~Server() {
     }
 }
 
-void Server::on_event(std::unique_ptr<Event> event) {
+void Server::on_event(std::shared_ptr<Event> event) {
     network::Connections::connection_t event_time =
             std::chrono::system_clock::now();
     std::queue<sockaddr_in> clients = connections->get_connected_clients(
             event_time);
     std::unique_ptr<ServerMessage> message = std::make_unique<ServerMessage>(
             game->get_id());
-    message->add_event(event.get());
+    message->add_event(event);
 
     {
         std::lock_guard<std::mutex> guard(messages_mutex);
@@ -67,7 +67,7 @@ void Server::on_event(std::unique_ptr<Event> event) {
     if (event->get_event_type() == event_t::GAME_OVER) {
         events->clear();
     } else {
-        events->add_event(std::move(event));
+        events->add_event(event);
     }
 }
 
@@ -134,8 +134,10 @@ void Server::receive_message() {
                 std::chrono::high_resolution_clock::now();
         try {
             player_action(client_address, &message, connection_time);
+            std::cout << message.get_player_name() << " action: " << message.get_turn_direction() << std::endl;
         } catch (const std::out_of_range &) {
             player_connect(client_address, &message, connection_time);
+            std::cout << message.get_player_name() << " connected" << std::endl;
         } catch (const std::invalid_argument &) {
             return;
         }
@@ -151,7 +153,8 @@ void Server::receive_message() {
 }
 
 void Server::make_message(event_no_t next_event, sockaddr_in client_address) {
-    std::queue<Event *> message_events = events->get_events(next_event);
+    std::queue<std::shared_ptr<Event>> message_events =
+            events->get_events(next_event);
     if (message_events.size() == 0) {
         return;
     }
@@ -163,7 +166,7 @@ void Server::make_message(event_no_t next_event, sockaddr_in client_address) {
             game->get_id());
 
     while (!message_events.empty()) {
-        Event *event = message_events.front();
+        std::shared_ptr<Event> &event = message_events.front();
         try {
             message->add_event(event);
         } catch (const std::overflow_error &) {
@@ -196,7 +199,7 @@ void Server::player_connect(sockaddr_in client_address, ClientMessage *message,
         std::cerr << "Error adding player to game: " << e.what() << std::endl;
         return;
     } catch (const std::length_error &e) {
-        std::cerr << "[This should never happen]: " << e.what() << std::endl;
+        std::cerr << "Invalid name: " << e.what() << std::endl;
         return;
     }
     connections->add_client(client_address, message->get_session(),

@@ -48,7 +48,14 @@ namespace siktacka {
          */
         virtual std::size_t get_len() const noexcept;
 
+        /**
+         * @return event number.
+         */
         event_no_t get_event_no() const noexcept;
+
+        /**
+         * @return event type.
+         */
         event_t get_event_type() const noexcept;
     };
 }

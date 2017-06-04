@@ -8,7 +8,7 @@
 namespace siktacka {
     class IEventListener {
     public:
-        virtual void on_event(std::unique_ptr<Event> event) = 0;
+        virtual void on_event(std::shared_ptr<Event> event) = 0;
     };
 }
 

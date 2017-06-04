@@ -46,3 +46,32 @@ void EventNewGame::add_player(std::string &&player) {
 std::size_t EventNewGame::get_len() const noexcept {
     return Event::get_len() + players_len + EVENT_NEW_GAME_HEADER_LEN;
 }
+
+EventNewGame::EventNewGame(event_no_t event_no, const char *data,
+                           std::size_t length)
+        : Event(event_no, event_t::NEW_GAME) {
+    std::size_t off = 0u;
+    if (length < EVENT_NEW_GAME_HEADER_LEN + 4) {
+        throw std::invalid_argument("Unexpected end of data");
+    }
+    max_x = be32toh(*reinterpret_cast<const pixel_t *>(data + off));
+    off += sizeof(pixel_t);
+    max_y = be32toh(*reinterpret_cast<const pixel_t *>(data + off));
+    off += sizeof(pixel_t);
+
+    // Check if there is a null termination so string constructor ends properly
+    if (*(data + length) != '\0') {
+        throw std::invalid_argument("Invalid username");
+    }
+
+    while (off < length) {
+        std::string player_name(data + off);
+        try {
+            add_player(player_name);
+        } catch (std::overflow_error &e) {
+            // It should not happen but just in case we'll catch it
+            throw std::invalid_argument(e.what());
+        }
+        off += player_name.length() + 1;
+    }
+}

@@ -19,7 +19,7 @@ namespace siktacka {
         /// Message length
         std::size_t message_len;
         /// Events sent in message
-        std::vector<Event *> events;
+        std::vector<std::shared_ptr<Event>> events;
 
     public:
         /**
@@ -28,13 +28,15 @@ namespace siktacka {
          */
         ServerMessage(game_t game_id) noexcept;
 
+        ServerMessage(const network::buffer_t &bytes);
+
         /**
          * Inserts new event to the message.
          * @throws std::overflow_error if the message would exceed maximum
          * message length.
          * @param event event to add.
          */
-        void add_event(Event *event);
+        void add_event(std::shared_ptr<Event> event);
 
         /**
          * Converts message into raw bytes

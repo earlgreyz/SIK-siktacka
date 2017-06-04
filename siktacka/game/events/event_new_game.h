@@ -39,6 +39,8 @@ namespace siktacka {
         EventNewGame(pixel_t max_x, pixel_t max_y,
                      event_no_t event_no) noexcept;
 
+        EventNewGame(event_no_t event_no, const char *data, std::size_t length);
+
         /**
          * Adds new player to the player list.
          * @throws std::overflow_error if adding the player would exceed
