@@ -97,16 +97,21 @@ void Game::start() noexcept {
 
     new_game();
     game_thread = std::thread([&]() {
-        std::chrono::microseconds round_time(
-                1000000 / game_options.rounds_per_sec);
-        std::chrono::microseconds sleep_time(0);
+        using std::chrono::microseconds;
+        using std::chrono::duration_cast;
+        using std::chrono::high_resolution_clock;
+
+        microseconds round_time(1000000 / game_options.rounds_per_sec);
+        microseconds sleep_time(0);
         while (running) {
-            auto start = std::chrono::high_resolution_clock::now();
+            auto start = high_resolution_clock ::now();
             do_frame();
-            auto end = std::chrono::high_resolution_clock::now();
+            auto end = high_resolution_clock ::now();
             sleep_time += round_time;
-            sleep_time -= std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-            std::this_thread::sleep_for(sleep_time);
+            sleep_time -= duration_cast<microseconds>(end - start);
+            if (sleep_time > microseconds(0)) {
+                std::this_thread::sleep_for(sleep_time);
+            }
         }
     });
 }
