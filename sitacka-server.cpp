@@ -9,7 +9,7 @@
 
 
 namespace {
-    sik::port_t server_port;
+    network::port_t server_port;
     siktacka::GameOptions game_options;
     std::unique_ptr<siktacka::Server> server;
 
@@ -33,7 +33,7 @@ namespace {
                          siktacka::SERVER_DEFAULT_HEIGHT),
                  "Board height")
                 ("port,p",
-                 po::value<sik::port_t>(
+                 po::value<network::port_t>(
                          &server_port)->default_value(
                          siktacka::SERVER_DEFAULT_PORT),
                  "Port")

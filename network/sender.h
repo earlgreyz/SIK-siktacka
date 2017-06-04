@@ -7,7 +7,7 @@
 #include <cerrno>
 #include "types.h"
 
-namespace sik {
+namespace network {
     /**
      * Exception thrown when function finishes with EWOULDBLOCK errno.
      */

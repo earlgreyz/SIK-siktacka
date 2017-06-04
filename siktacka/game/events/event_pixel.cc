@@ -9,8 +9,8 @@ EventPixel::EventPixel(event_no_t event_no, player_no_t player_no,
     y = position.second;
 }
 
-sik::buffer_t EventPixel::get_data() const noexcept {
-    sik::buffer_t bytes(EVENT_PIXEL_HEADER_LEN);
+network::buffer_t EventPixel::get_data() const noexcept {
+    network::buffer_t bytes(EVENT_PIXEL_HEADER_LEN);
     char *data = bytes.data();
     std::size_t off = 0u;
 

@@ -7,7 +7,7 @@
 
 
 namespace siktacka {
-    using pixel_t = std::size_t;
+    using pixel_t = std::uint32_t;
     using rounds_t = std::uint16_t;
     using turn_speed_t = std::uint16_t;
     using rand_t = std::uint32_t;

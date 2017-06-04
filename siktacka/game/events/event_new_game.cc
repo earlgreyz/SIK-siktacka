@@ -8,8 +8,8 @@ EventNewGame::EventNewGame(pixel_t max_x, pixel_t max_y,
     players_len = 0u;
 }
 
-sik::buffer_t EventNewGame::get_data() const noexcept {
-    sik::buffer_t bytes(players_len + EVENT_NEW_GAME_HEADER_LEN);
+network::buffer_t EventNewGame::get_data() const noexcept {
+    network::buffer_t bytes(players_len + EVENT_NEW_GAME_HEADER_LEN);
     std::size_t off = 0u;
     char *data = bytes.data();
 

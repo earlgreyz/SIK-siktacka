@@ -11,16 +11,17 @@
 #include "game/events.h"
 #include "game/i_event_listener.h"
 #include "../error.h"
-#include "../sik/types.h"
-#include "../sik/poll.h"
-#include "../sik/sender.h"
-#include "../sik/receiver.h"
-#include "../sik/connections.h"
+#include "../network/types.h"
+#include "../network/poll.h"
+#include "../network/sender.h"
+#include "../network/receiver.h"
+#include "../network/connections.h"
 #include "protocol/server/message.h"
+#include "../network/i_connection_listener.h"
 
 
 namespace siktacka {
-    const sik::port_t SERVER_DEFAULT_PORT = 12345u;
+    const network::port_t SERVER_DEFAULT_PORT = 12345u;
 
     /**
      * Exception thrown when server error occurs.
@@ -37,7 +38,7 @@ namespace siktacka {
     /**
      * Game server.
      */
-    class Server: public IEventListener {
+    class Server : public IEventListener, public IConnectionListener {
         using MessageInstance =
         std::pair<std::unique_ptr<ServerMessage>, std::queue<sockaddr_in>>;
     private:
@@ -48,7 +49,7 @@ namespace siktacka {
         /// Indicates whether server should stop main loop
         bool stopping;
         /// Poll for async IO operations.
-        std::unique_ptr<sik::Poll<1>> poll;
+        std::unique_ptr<network::Poll<1>> poll;
 
         /// Current game
         std::unique_ptr<Events> events;
@@ -56,9 +57,9 @@ namespace siktacka {
         std::queue<MessageInstance> messages;
 
         // Server helper structures
-        std::unique_ptr<sik::Connections> connections;
-        std::unique_ptr<sik::Sender> sender;
-        std::unique_ptr<sik::Receiver> receiver;
+        std::unique_ptr<network::Connections> connections;
+        std::unique_ptr<network::Sender> sender;
+        std::unique_ptr<network::Receiver> receiver;
     public:
         /**
          * Constructs new Server instance.
@@ -66,7 +67,7 @@ namespace siktacka {
          * @param game_options game options.
          * @throws ServerException
          */
-        Server(sik::port_t port, const GameOptions &game_options);
+        Server(network::port_t port, const GameOptions &game_options);
 
         /**
          * Constructs new Server instance.
@@ -74,16 +75,24 @@ namespace siktacka {
          * @param game_options game options.
          * @throws ServerException
          */
-        Server(sik::port_t port = SERVER_DEFAULT_PORT,
+        Server(network::port_t port = SERVER_DEFAULT_PORT,
                GameOptions &&game_options = GameOptions());
 
         ~Server();
 
-        void notify(std::unique_ptr<Event> event);
+        /**
+         * Implements IEventListener interface.
+         * Creates a massage with new event to send to clients.
+         * @param event event
+         */
+        void on_event(std::unique_ptr<Event> event) override;
 
-        void clear_events() {
-            events->clear();
-        }
+        /**
+         * Implements IConnectionListener interface.
+         * Notifies the game about player disconnected.
+         * @param name
+         */
+        void on_disconnect(const std::string &name) override;
 
         /**
          * Starts server loop, going forever until stop method is asynchronously
@@ -108,13 +117,26 @@ namespace siktacka {
          * @param port port to bind socket to.
          * @throws ServerException when binding fails.
          */
-        void bind_socket(sik::port_t port);
+        void bind_socket(network::port_t port);
 
+        /**
+         * Sends single message from messages queue.
+         */
         void send_message();
 
+        /**
+         * Receives single message from socket.
+         */
         void receive_message();
 
-        void add_message(event_no_t next_event, sockaddr_in client_address);
+        /**
+         * Constructs message with events newer that next_event and adds it to
+         * the queue. May add more than one message if events doesn't fit in
+         * single message.
+         * @param next_event
+         * @param client_address
+         */
+        void make_message(event_no_t next_event, sockaddr_in client_address);
     };
 }
 

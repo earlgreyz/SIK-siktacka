@@ -6,7 +6,7 @@
 #include "types.h"
 
 
-namespace sik {
+namespace network {
     /**
      * Class for receiving messages from socket.
      */

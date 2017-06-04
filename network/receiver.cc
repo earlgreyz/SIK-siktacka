@@ -1,13 +1,14 @@
+#include <stdexcept>
 #include "receiver.h"
-#include "../siktacka/protocol/server/constants.h"
+#include "constants.h"
 
-using namespace sik;
+using namespace network;
 
 Receiver::Receiver(int sock) noexcept : sock(sock) {}
 
 buffer_t Receiver::receive_message(const sockaddr_in &address) {
     socklen_t address_len = sizeof(address);
-    buffer_t buffer(siktacka::MAX_MESSAGE_LEN);
+    buffer_t buffer(MAX_MESSAGE_LEN);
 
     ssize_t length;
     length = recvfrom(sock, buffer.data(), buffer.size(), 0,
@@ -16,7 +17,7 @@ buffer_t Receiver::receive_message(const sockaddr_in &address) {
         throw std::runtime_error("Error receiving data");
     }
 
-    buffer.resize(length);
+    buffer.resize(static_cast<std::size_t>(length));
     return buffer;
 }
 

@@ -6,7 +6,7 @@
 #include "../error.h"
 
 
-namespace sik {
+namespace network {
     /**
      * Exception thrown when poll error occurs.
      */

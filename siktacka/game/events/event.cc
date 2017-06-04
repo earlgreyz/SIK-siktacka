@@ -4,7 +4,7 @@
 using namespace siktacka;
 
 namespace {
-    crc32_t get_crc(const sik::buffer_t &bytes) noexcept {
+    crc32_t get_crc(const network::buffer_t &bytes) noexcept {
         boost::crc_32_type result;
         result.process_bytes(bytes.data(), bytes.size());
         return static_cast<crc32_t>(result.checksum());
@@ -14,14 +14,14 @@ namespace {
 Event::Event(event_no_t event_no, event_t event_type)
         : event_no(event_no), event_type(event_type) {}
 
-sik::buffer_t siktacka::Event::to_bytes() const noexcept {
+network::buffer_t siktacka::Event::to_bytes() const noexcept {
     std::size_t header_len =
             sizeof(event_len_t) + sizeof(event_no_t) + sizeof(event_t);
-    sik::buffer_t bytes(header_len);
+    network::buffer_t bytes(header_len);
     char * data = bytes.data();
     std::size_t off = 0u;
 
-    sik::buffer_t event_data(get_data());
+    network::buffer_t event_data(get_data());
     std::move(event_data.begin(), event_data.end(), std::back_inserter(bytes));
 
     const event_len_t len =

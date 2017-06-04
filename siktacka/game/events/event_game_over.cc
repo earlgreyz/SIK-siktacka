@@ -2,8 +2,8 @@
 
 using namespace siktacka;
 
-sik::buffer_t EventGameOver::get_data() const noexcept {
-    return sik::buffer_t();
+network::buffer_t EventGameOver::get_data() const noexcept {
+    return network::buffer_t();
 }
 
 EventGameOver::EventGameOver(event_no_t event_no) noexcept

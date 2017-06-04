@@ -8,7 +8,7 @@
 #include "board.h"
 #include "../types.h"
 #include "../random.h"
-#include "../signal.h"
+#include "../../system/signal.h"
 #include "events.h"
 #include "events/event_new_game.h"
 #include "i_event_listener.h"

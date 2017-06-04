@@ -26,7 +26,7 @@ ClientMessage::ClientMessage(session_t session_id, direction_t turn_direction,
     validate();
 }
 
-ClientMessage::ClientMessage(const sik::buffer_t &bytes) {
+ClientMessage::ClientMessage(const network::buffer_t &bytes) {
     const char *data = bytes.data();
     std::size_t off = 0u;
 
@@ -44,10 +44,10 @@ ClientMessage::ClientMessage(const sik::buffer_t &bytes) {
     validate();
 }
 
-sik::buffer_t ClientMessage::to_bytes() const noexcept {
+network::buffer_t ClientMessage::to_bytes() const noexcept {
     const std::size_t data_length =
             sizeof(session_t) + sizeof(direction_t) + sizeof(event_no_t);
-    sik::buffer_t bytes(data_length);
+    network::buffer_t bytes(data_length);
     char *data = bytes.data();
     std::size_t off = 0u;
 

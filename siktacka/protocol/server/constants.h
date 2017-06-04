@@ -2,6 +2,7 @@
 #define SIK_SIKTACKA_CONSTANTS_H
 
 #include "../../types.h"
+#include "../../../network/constants.h"
 
 
 namespace siktacka {

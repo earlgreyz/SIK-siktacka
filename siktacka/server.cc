@@ -5,29 +5,29 @@
 
 using namespace siktacka;
 
-Server::Server(sik::port_t port, const GameOptions &game_options)
+Server::Server(network::port_t port, const GameOptions &game_options)
         : Server::Server(port, GameOptions(game_options)) {}
 
-Server::Server(sik::port_t port, GameOptions &&game_options) {
+Server::Server(network::port_t port, GameOptions &&game_options) {
     open_socket();
     bind_socket(port);
 
     try {
-        poll = std::make_unique<sik::Poll<1>>();
+        poll = std::make_unique<network::Poll<1>>();
         poll->add_descriptor(sock, POLLIN | POLLOUT);
-    } catch (const sik::PollException &e) {
+    } catch (const network::PollException &e) {
         throw ServerException(e.what());
     }
 
-    connections = std::make_unique<sik::Connections>();
-    sender = std::make_unique<sik::Sender>(sock);
-    receiver = std::make_unique<sik::Receiver>(sock);
+    connections = std::make_unique<network::Connections>(this);
+    sender = std::make_unique<network::Sender>(sock);
+    receiver = std::make_unique<network::Receiver>(sock);
 
     events = std::make_unique<Events>();
     game = std::make_unique<Game>(game_options, this);
 }
 
-void Server::bind_socket(sik::port_t port) {
+void Server::bind_socket(network::port_t port) {
     address.sin_family = AF_INET;
     address.sin_addr.s_addr = htonl(INADDR_ANY);
     address.sin_port = htons(port);
@@ -49,8 +49,8 @@ Server::~Server() {
     }
 }
 
-void Server::notify(std::unique_ptr<Event> event) {
-    sik::Connections::connection_t event_time =
+void Server::on_event(std::unique_ptr<Event> event) {
+    network::Connections::connection_t event_time =
             std::chrono::system_clock::now();
     std::queue<sockaddr_in> clients = connections->get_connected_clients(
             event_time);
@@ -65,6 +65,11 @@ void Server::notify(std::unique_ptr<Event> event) {
     } else {
         events->add_event(std::move(event));
     }
+}
+
+
+void Server::on_disconnect(const std::string &name) {
+    game->remove_player(name);
 }
 
 void Server::run() noexcept {
@@ -105,9 +110,10 @@ void Server::send_message() {
     }
 
     try {
-        sender->send_message(messages.front().second.front(), messages.front().first->to_bytes());
+        sender->send_message(messages.front().second.front(),
+                             messages.front().first->to_bytes());
         messages.front().second.pop();
-    } catch (const sik::WouldBlockException &) {
+    } catch (const network::WouldBlockException &) {
         return;
     }
 }
@@ -116,29 +122,28 @@ void Server::receive_message() {
     try {
         sockaddr_in client_address = sockaddr_in();
         ClientMessage message(receiver->receive_message(client_address));
-        sik::Connections::connection_t connection_time =
+        network::Connections::connection_t connection_time =
                 std::chrono::system_clock::now();
         try {
             connections->get_client(client_address, message.get_session(),
-                                    message.get_player_name(), connection_time);
+                                    connection_time);
             game->player_action(message.get_player_name(),
                                 message.get_turn_direction());
-            add_message(message.get_next_event_no(), client_address);
         } catch (const std::out_of_range &) {
             connections->add_client(client_address, message.get_session(),
-                                    connection_time);
+                                    message.get_player_name(), connection_time);
             game->add_player(message.get_player_name());
         } catch (const std::invalid_argument &) {
             return;
         }
 
-        // TODO: Handle next_event_no
+        make_message(message.get_next_event_no(), client_address);
     } catch (const std::runtime_error &) {
         return;
     }
 }
 
-void Server::add_message(event_no_t next_event, sockaddr_in client_address) {
+void Server::make_message(event_no_t next_event, sockaddr_in client_address) {
     std::queue<Event *> message_events = events->get_events(next_event);
     if (message_events.size() == 0) {
         return;
@@ -163,3 +168,4 @@ void Server::add_message(event_no_t next_event, sockaddr_in client_address) {
     messages.push(std::make_pair(std::move(message), client));
     (*poll)[sock].events = POLLIN | POLLOUT;
 }
+

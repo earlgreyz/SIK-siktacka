@@ -2,7 +2,7 @@
 #define SIK_SIKTACKA_CLIENT_MESSAGE_H
 
 #include "../../types.h"
-#include "../../../sik/types.h"
+#include "../../../network/types.h"
 #include <string>
 #include <vector>
 
@@ -46,7 +46,7 @@ namespace siktacka {
          * @param bytes client message in network bytes representation.
          * @related to_bytes
          */
-        ClientMessage(const sik::buffer_t &bytes);
+        ClientMessage(const network::buffer_t &bytes);
 
         /**
          * Converts message to raw bytes formatted as follows:
@@ -56,7 +56,7 @@ namespace siktacka {
          * - up to 64 bytes - player name
          * @return network bytes message representation
          */
-        sik::buffer_t to_bytes() const noexcept;
+        network::buffer_t to_bytes() const noexcept;
 
         session_t get_session() const noexcept;
 

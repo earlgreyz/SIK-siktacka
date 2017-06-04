@@ -5,7 +5,7 @@
 #include <memory>
 #include "../../game/events/event.h"
 #include "../../types.h"
-#include "../../../sik/types.h"
+#include "../../../network/types.h"
 
 
 namespace siktacka {
@@ -40,23 +40,7 @@ namespace siktacka {
          * Converts message into raw bytes
          * @return data in raw bytes format.
          */
-        sik::buffer_t to_bytes() const noexcept;
-
-        using iterator = std::vector<Event *>::iterator;
-
-        /**
-        * @return iterator to the first element of events array.
-        */
-        iterator begin() {
-            return events.begin();
-        }
-
-        /**
-         * @return iterator to the last element of events array.
-         */
-        iterator end() {
-            return events.end();
-        }
+        network::buffer_t to_bytes() const noexcept;
     };
 }
 

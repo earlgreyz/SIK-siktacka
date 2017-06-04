@@ -16,11 +16,11 @@ void ServerMessage::add_event(Event *event) {
     message_len += event->get_len();
 }
 
-sik::buffer_t ServerMessage::to_bytes() const noexcept {
-    sik::buffer_t bytes(sizeof(game_t));
+network::buffer_t ServerMessage::to_bytes() const noexcept {
+    network::buffer_t bytes(sizeof(game_t));
     *reinterpret_cast<game_t *>(bytes.data()) = htobe32(game_id);
     for (const auto &event: events) {
-        sik::buffer_t event_bytes(event->to_bytes());
+        network::buffer_t event_bytes(event->to_bytes());
         std::move(event_bytes.begin(), event_bytes.end(),
                   std::back_inserter(bytes));
     }

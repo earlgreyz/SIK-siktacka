@@ -11,7 +11,7 @@ namespace siktacka {
          * Serializes GAME_OVER event data.
          * @return empty buffer.
          */
-        sik::buffer_t get_data() const noexcept override;
+        network::buffer_t get_data() const noexcept override;
     public:
         /**
          * Constructs new GAME_OVER event.

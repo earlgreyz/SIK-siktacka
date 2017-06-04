@@ -3,7 +3,7 @@
 
 #include "../../protocol/server/constants.h"
 #include "../../types.h"
-#include "../../../sik/types.h"
+#include "../../../network/types.h"
 
 
 namespace siktacka {
@@ -27,7 +27,7 @@ namespace siktacka {
          * Converts event_data to network ready byte format.
          * @return event_data bytes.
          */
-        virtual sik::buffer_t get_data() const noexcept = 0;
+        virtual network::buffer_t get_data() const noexcept = 0;
 
     public:
         /**
@@ -41,7 +41,7 @@ namespace siktacka {
          * Serializes event to network ready byte format.
          * @return event bytes representation.
          */
-        sik::buffer_t to_bytes() const noexcept;
+        network::buffer_t to_bytes() const noexcept;
 
         /**
          * @return length of event bytes.

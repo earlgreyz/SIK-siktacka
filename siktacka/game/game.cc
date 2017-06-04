@@ -118,7 +118,7 @@ void Game::do_frame() noexcept {
     request_next_frame();
 
     if (snakes_alive_count <= 1) {
-        listener->notify(std::make_unique<EventGameOver>(event_no++));
+        listener->on_event(std::make_unique<EventGameOver>(event_no++));
         running = false;
         initialize();
         return;
@@ -162,7 +162,7 @@ void Game::new_game() noexcept {
     }
 
     snakes_alive_count = player_no - 1u;
-    listener->notify(std::move(event_new_game));
+    listener->on_event(std::move(event_new_game));
 }
 
 std::unique_ptr<Snake> Game::make_snake() noexcept {
@@ -177,12 +177,12 @@ void Game::place_snake(Snake *snake, player_no_t player_no) noexcept {
     position_t snake_position = snake->get_position();
     if (board->is_empty(snake_position)) {
         board->mark_occupied(snake_position);
-        listener->notify(std::make_unique<EventPixel>(
+        listener->on_event(std::make_unique<EventPixel>(
                 event_no++, player_no, snake_position
         ));
     } else {
         snakes_alive_count--;
-        listener->notify(std::make_unique<EventPlayerEliminated>(
+        listener->on_event(std::make_unique<EventPlayerEliminated>(
                 event_no++, player_no
         ));
     }

@@ -9,8 +9,8 @@ EventPlayerEliminated::EventPlayerEliminated(event_no_t event_no,
 
 }
 
-sik::buffer_t EventPlayerEliminated::get_data() const noexcept {
-    sik::buffer_t bytes(EVENT_PLAYER_ELIMINATED_HEADER_LEN);
+network::buffer_t EventPlayerEliminated::get_data() const noexcept {
+    network::buffer_t bytes(EVENT_PLAYER_ELIMINATED_HEADER_LEN);
     *reinterpret_cast<player_no_t *>(bytes.data()) = player_no;
     return bytes;
 }

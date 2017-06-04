@@ -27,7 +27,7 @@ namespace siktacka {
          * @related Event::get_data()
          * @return bytes representation of the new game event data.
          */
-        sik::buffer_t get_data() const noexcept override;
+        network::buffer_t get_data() const noexcept override;
 
     public:
         /**
