@@ -27,6 +27,9 @@ namespace siktacka {
         EventPlayerEliminated(event_no_t event_no,
                               player_no_t player_no) noexcept;
 
+        EventPlayerEliminated(event_no_t event_no, const char *data,
+                std::size_t length);
+
         std::size_t get_len() const noexcept override;
     };
 }
