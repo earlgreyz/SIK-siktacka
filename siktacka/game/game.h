@@ -71,7 +71,7 @@ namespace siktacka {
          * Adds new player to the players pool.
          * @param name new player name.
          */
-        void add_player(const std::string &name) noexcept;
+        void add_player(const std::string &name);
 
         /**
          * Removes player from the players pool.

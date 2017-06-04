@@ -31,7 +31,7 @@ void Game::initialize() {
     }
 }
 
-void Game::add_player(const std::string &name) noexcept {
+void Game::add_player(const std::string &name) {
     if (name.length() > MAX_PLAYER_NAME_LENGTH) {
         throw std::length_error(
                 "Player name cannot be longer than 64 characters");
