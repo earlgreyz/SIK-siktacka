@@ -46,4 +46,5 @@ set(CLIENT_SOURCE_FILES sitacka-client.cpp siktacka/client/client.h siktacka/cli
 add_executable(client ${SOURCE_FILES} ${CLIENT_SOURCE_FILES})
 add_executable(server ${SOURCE_FILES} ${SERVER_SOURCE_FILES})
 
+TARGET_LINK_LIBRARIES(client ${Boost_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
 TARGET_LINK_LIBRARIES(server ${Boost_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})

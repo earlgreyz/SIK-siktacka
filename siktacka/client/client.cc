@@ -74,6 +74,26 @@ void Client::setup_address(const std::string &host, uint16_t port) {
 
 void Client::run() {
     add_server_message();
+    client_thread = std::thread([&]() {
+        using std::chrono::milliseconds;
+        using std::chrono::duration_cast;
+        using std::chrono::high_resolution_clock;
+        milliseconds round_time(20);
+        milliseconds sleep_time(0);
+        while (!stopping) {
+            auto start = high_resolution_clock::now();
+            add_server_message();
+            (*poll)[server_sock].events = POLLIN | POLLOUT;
+            auto end = high_resolution_clock ::now();
+            sleep_time += round_time;
+            sleep_time -= duration_cast<milliseconds>(end - start);
+            if (sleep_time > milliseconds(0)) {
+                std::this_thread::sleep_for(sleep_time);
+                sleep_time = milliseconds(0);
+            }
+        }
+    });
+
     while (!stopping) {
         while (!stopping) {
             try {
@@ -107,6 +127,7 @@ void Client::run() {
 
 void Client::stop() noexcept {
     stopping = true;
+    client_thread.join();
 }
 
 void Client::make_session_id() noexcept {
@@ -153,11 +174,13 @@ void Client::send_message() {
     {
         std::lock_guard<std::mutex> lock(messages_mutex);
         if (messages.size() == 0) {
+            std::cout << "No message" << std::endl;
             (*poll)[server_sock].events = POLLIN;
             return;
         }
     }
     try {
+        std::cout << "Sending " << messages.front()->get_turn_direction() << std::endl;
         sender->send_message(server_address, messages.front()->to_bytes());
         messages.pop();
     } catch (const network::WouldBlockException &) {

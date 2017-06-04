@@ -7,6 +7,7 @@
 #include <queue>
 #include <list>
 #include <mutex>
+#include <thread>
 #include "../../network/sender.h"
 #include "../../network/receiver.h"
 #include "../../network/poll.h"
@@ -43,6 +44,8 @@ namespace sikclient {
         // Messages to send to server
         std::queue<std::unique_ptr<siktacka::ClientMessage>> messages;
         std::mutex messages_mutex;
+
+        std::thread client_thread;
 
         // Events received
         std::queue<std::string> events;

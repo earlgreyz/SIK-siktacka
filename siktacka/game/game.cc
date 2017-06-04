@@ -111,6 +111,7 @@ void Game::start() noexcept {
             sleep_time -= duration_cast<microseconds>(end - start);
             if (sleep_time > microseconds(0)) {
                 std::this_thread::sleep_for(sleep_time);
+                sleep_time = microseconds(0);
             }
         }
     });
