@@ -67,6 +67,11 @@ void ClientMessage::validate() {
     if (player_name.length() > 64) {
         throw std::invalid_argument("Name cannot be longer than 64 characters");
     }
+    for (const char &letter : player_name) {
+        if (letter < static_cast<char>(33) || letter > static_cast<char>(126)) {
+            throw std::invalid_argument("Forbidden characters in player name");
+        }
+    }
 }
 
 session_t ClientMessage::get_session() const noexcept {

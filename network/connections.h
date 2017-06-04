@@ -16,7 +16,8 @@
 namespace network {
     class Connections {
     public:
-        using connection_t = std::chrono::time_point<std::chrono::system_clock>;
+        using connection_t =
+        std::chrono::time_point<std::chrono::high_resolution_clock>;
     private:
         struct Client {
             /// Client socket address
@@ -36,8 +37,9 @@ namespace network {
     public:
         Connections(IConnectionListener *listener) noexcept;
 
-        void get_client(sockaddr_in address, siktacka::session_t session,
-                        connection_t time_point);
+        const std::string &
+        get_client(sockaddr_in address, siktacka::session_t session,
+                   connection_t time_point);
 
         void add_client(sockaddr_in address, siktacka::session_t session,
                         const std::string &name,

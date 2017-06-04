@@ -4,11 +4,11 @@
 #include <ctime>
 #include <memory>
 #include <map>
-#include "snake.h"
-#include "board.h"
+#include <thread>
 #include "../types.h"
 #include "../random.h"
-#include "../../system/signal.h"
+#include "snake.h"
+#include "board.h"
 #include "events.h"
 #include "events/event_new_game.h"
 #include "i_event_listener.h"
@@ -50,7 +50,7 @@ namespace siktacka {
         IEventListener *listener;
         event_no_t event_no;
 
-        SignalScope<SIGALRM> frame_signal;
+        std::thread game_thread;
 
     public:
         /**
@@ -64,6 +64,8 @@ namespace siktacka {
          * @param game_options game options.
          */
         Game(GameOptions &&game_options, IEventListener *server) noexcept;
+
+        ~Game();
 
         /**
          * Adds new player to the players pool.
@@ -84,6 +86,10 @@ namespace siktacka {
          */
         void player_action(const std::string &name, direction_t direction);
 
+        /**
+         * Returns current game id.
+         * @return game id.
+         */
         game_t get_id() const noexcept;
 
     private:
@@ -111,11 +117,6 @@ namespace siktacka {
          * Starts the game round if all players are ready.
          */
         void start() noexcept;
-
-        /**
-         * Registers signal to perform next frame.
-         */
-        void request_next_frame() noexcept;
 
         /**
          * Performs single game loop iteration.

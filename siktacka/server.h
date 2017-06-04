@@ -18,6 +18,7 @@
 #include "../network/connections.h"
 #include "protocol/server/message.h"
 #include "../network/i_connection_listener.h"
+#include "protocol/client/message.h"
 
 
 namespace siktacka {
@@ -128,6 +129,24 @@ namespace siktacka {
          * Receives single message from socket.
          */
         void receive_message();
+
+        /**
+         * Handles received message for existing players.
+         * @param client_address
+         * @param message
+         * @param connection_time
+         */
+        void player_action(sockaddr_in client_address, ClientMessage *message,
+                           network::Connections::connection_t connection_time);
+
+        /**
+         * Handles received massage for new players.
+         * @param client_address
+         * @param message
+         * @param connection_time
+         */
+        void player_connect(sockaddr_in client_address, ClientMessage *message,
+                            network::Connections::connection_t connection_time);
 
         /**
          * Constructs message with events newer that next_event and adds it to

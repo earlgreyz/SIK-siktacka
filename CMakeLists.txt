@@ -5,6 +5,7 @@ set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
 #set(CMAKE_CXX_COMPILER /usr/bin/clang)
 
+find_package (Threads REQUIRED )
 FIND_PACKAGE(Boost COMPONENTS system program_options filesystem REQUIRED)
 INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})
 
@@ -45,4 +46,4 @@ set(CLIENT_SOURCE_FILES sitacka-client.cpp)
 add_executable(client ${SOURCE_FILES} ${CLIENT_SOURCE_FILES})
 add_executable(server ${SOURCE_FILES} ${SERVER_SOURCE_FILES})
 
-TARGET_LINK_LIBRARIES(server ${Boost_LIBRARIES})
+TARGET_LINK_LIBRARIES(server ${Boost_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})

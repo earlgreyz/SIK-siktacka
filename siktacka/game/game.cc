@@ -3,18 +3,19 @@
 #include "events/event_pixel.h"
 #include "events/event_game_over.h"
 #include <algorithm>
-#include <sys/time.h>
 
 using namespace siktacka;
 
 
-Game::Game(const siktacka::GameOptions &game_options, IEventListener *server) noexcept
+Game::Game(const siktacka::GameOptions &game_options,
+           IEventListener *server) noexcept
         : Game(GameOptions(game_options), server) {
 
 }
 
-Game::Game(siktacka::GameOptions &&game_options, IEventListener *server) noexcept
-        : game_options(game_options), listener(server), frame_signal([&](int) { do_frame(); }) {
+Game::Game(siktacka::GameOptions &&game_options,
+           IEventListener *server) noexcept
+        : game_options(game_options), listener(server) {
     random = std::make_unique<Random>(game_options.seed);
     board = std::make_unique<Board>(game_options.width, game_options.height);
     initialize();
@@ -32,7 +33,7 @@ void Game::initialize() {
 
 void Game::add_player(const std::string &name) noexcept {
     if (name.length() > MAX_PLAYER_NAME_LENGTH) {
-        throw std::invalid_argument(
+        throw std::length_error(
                 "Player name cannot be longer than 64 characters");
     }
 
@@ -95,28 +96,26 @@ void Game::start() noexcept {
     running = true;
 
     new_game();
-    request_next_frame();
+    game_thread = std::thread([&]() {
+        std::chrono::microseconds round_time(
+                1000000 / game_options.rounds_per_sec);
+        std::chrono::microseconds sleep_time(0);
+        while (running) {
+            auto start = std::chrono::high_resolution_clock::now();
+            do_frame();
+            auto end = std::chrono::high_resolution_clock::now();
+            sleep_time += round_time;
+            sleep_time -= std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+            std::this_thread::sleep_for(sleep_time);
+        }
+    });
 }
 
-void Game::request_next_frame() noexcept {
-    if (!running) {
-        return;
-    }
-
-    itimerval itm;
-    itm.it_interval.tv_sec = 0;
-    itm.it_value.tv_sec = 0;
-    itm.it_interval.tv_usec = 1000000 / game_options.rounds_per_sec;
-    itm.it_value.tv_usec = 1000000 / game_options.rounds_per_sec;
-
-    if (setitimer(ITIMER_REAL, &itm, 0) != 0) {
-        // TODO: Print error
-    }
+game_t Game::get_id() const noexcept {
+    return game_id;
 }
 
 void Game::do_frame() noexcept {
-    request_next_frame();
-
     if (snakes_alive_count <= 1) {
         listener->on_event(std::make_unique<EventGameOver>(event_no++));
         running = false;
@@ -135,6 +134,7 @@ void Game::do_frame() noexcept {
 
 void Game::new_game() noexcept {
     player_no_t player_no = 0u;
+    snakes_alive_count = 0u;
 
     board->clear();
     snakes.clear();
@@ -148,20 +148,23 @@ void Game::new_game() noexcept {
             event_new_game->add_player(player.first);
             player.second.player_no = player_no;
             player.second.in_game = true;
+
             std::unique_ptr<Snake> snake = make_snake();
+            snakes_alive_count++;
+
             place_snake(snake.get(), player_no);
             snakes.push_back(std::move(snake));
+
             player_no++;
         } catch (const std::overflow_error &) {
-            // Player name doesn't fit int the new game message skip
-            continue;
+            // Player name doesn't fit in the new game message stop adding
+            break;
         } catch (const std::invalid_argument &) {
             // Player name is not a valid name skip
             continue;
         }
     }
 
-    snakes_alive_count = player_no - 1u;
     listener->on_event(std::move(event_new_game));
 }
 
@@ -188,7 +191,7 @@ void Game::place_snake(Snake *snake, player_no_t player_no) noexcept {
     }
 }
 
-game_t Game::get_id() const noexcept {
-    return game_id;
+Game::~Game() {
+    running = false;
+    game_thread.join();
 }
-

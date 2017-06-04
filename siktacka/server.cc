@@ -2,6 +2,7 @@
 #include "protocol/client/message.h"
 #include <unistd.h>
 #include <fcntl.h>
+#include <iostream>
 
 using namespace siktacka;
 
@@ -123,22 +124,21 @@ void Server::receive_message() {
         sockaddr_in client_address = sockaddr_in();
         ClientMessage message(receiver->receive_message(client_address));
         network::Connections::connection_t connection_time =
-                std::chrono::system_clock::now();
+                std::chrono::high_resolution_clock::now();
         try {
-            connections->get_client(client_address, message.get_session(),
-                                    connection_time);
-            game->player_action(message.get_player_name(),
-                                message.get_turn_direction());
+            player_action(client_address, &message, connection_time);
         } catch (const std::out_of_range &) {
-            connections->add_client(client_address, message.get_session(),
-                                    message.get_player_name(), connection_time);
-            game->add_player(message.get_player_name());
+            player_connect(client_address, &message, connection_time);
         } catch (const std::invalid_argument &) {
             return;
         }
 
         make_message(message.get_next_event_no(), client_address);
-    } catch (const std::runtime_error &) {
+    } catch (const std::runtime_error &e) {
+        std::cerr << "Error while receiving message: " << e.what() << std::endl;
+        return;
+    } catch (const std::invalid_argument &e) {
+        std::cerr << "Received invalid message: " << e.what() << std::endl;
         return;
     }
 }
@@ -167,5 +167,31 @@ void Server::make_message(event_no_t next_event, sockaddr_in client_address) {
     }
     messages.push(std::make_pair(std::move(message), client));
     (*poll)[sock].events = POLLIN | POLLOUT;
+}
+
+void Server::player_action(sockaddr_in client_address, ClientMessage *message,
+                           network::Connections::connection_t connection_time) {
+    const std::string &name = connections->get_client(
+            client_address, message->get_session(), connection_time);
+    if (name == "" || name != message->get_player_name()) {
+        return;
+    }
+    game->player_action(name, message->get_turn_direction());
+}
+
+void Server::player_connect(sockaddr_in client_address, ClientMessage *message,
+                            network::Connections::connection_t connection_time) {
+    try {
+        game->add_player(message->get_player_name());
+    } catch (const std::invalid_argument &e) {
+        std::cerr << "Error adding player to game: " << e.what() << std::endl;
+        return;
+    } catch (const std::length_error &e) {
+        std::cerr << "[This should never happen]: " << e.what() << std::endl;
+        return;
+    }
+    connections->add_client(client_address, message->get_session(),
+                            message->get_player_name(), connection_time);
+
 }
 

@@ -24,8 +24,9 @@ bool Connections::Client::is_active(connection_t time_point) const noexcept {
 Connections::Connections(IConnectionListener *listener) noexcept
         : listener(listener) {}
 
-void Connections::get_client(sockaddr_in address, siktacka::session_t session,
-                             connection_t time_point) {
+const std::string &
+Connections::get_client(sockaddr_in address, siktacka::session_t session,
+                        connection_t time_point) {
     for (auto client = clients.begin(); client != clients.begin(); ++client) {
         if (client->address == address) {
             if (client->session < session) {
@@ -38,8 +39,8 @@ void Connections::get_client(sockaddr_in address, siktacka::session_t session,
                 throw std::out_of_range("Requested newer session");
             } else {
                 client->timestamp = time_point;
+                return client->name;
             }
-            return;
         }
     }
 
