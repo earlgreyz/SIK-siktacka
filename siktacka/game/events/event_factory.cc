@@ -3,6 +3,7 @@
 #include "event_new_game.h"
 #include "event_pixel.h"
 #include "event_player_eliminated.h"
+#include "event_game_over.h"
 
 using namespace siktacka;
 
@@ -69,11 +70,10 @@ EventFactory::make(const network::buffer_t &buffer, std::size_t offset) const {
             return std::make_shared<EventPlayerEliminated>(
                     event_no, event_data, data_len);
         case event_t::GAME_OVER:
-            break;
+            return std::make_shared<EventGameOver>(
+                    event_no, event_data, data_len);
         default:
             throw unknown_event(
                     sizeof(event_len_t) + event_len + sizeof(crc32_t));
     }
-
-    return std::shared_ptr<Event>();
 }

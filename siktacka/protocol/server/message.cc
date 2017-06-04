@@ -1,4 +1,5 @@
 #include "message.h"
+#include "../../game/events/event_factory.h"
 
 using namespace siktacka;
 
@@ -29,4 +30,24 @@ network::buffer_t ServerMessage::to_bytes() const noexcept {
 
 ServerMessage::ServerMessage(const network::buffer_t &bytes) {
     game_id = be32toh(*reinterpret_cast<const game_t *>(bytes.data()));
+    std::size_t off = sizeof(game_t);
+    EventFactory event_factory;
+    while (off < bytes.size()) {
+        try {
+            std::shared_ptr<Event> event = event_factory.make(bytes, off);
+            add_event(event);
+        } catch (const invalid_crc &e) {
+            break;
+        } catch (const unknown_event &e) {
+            off += e.get_length();
+        }
+    }
+}
+
+std::vector<std::shared_ptr<Event>>::iterator ServerMessage::begin() {
+    return events.begin();
+}
+
+std::vector<std::shared_ptr<Event>>::iterator ServerMessage::end() {
+    return events.end();
 }

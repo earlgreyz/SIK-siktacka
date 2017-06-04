@@ -43,6 +43,10 @@ namespace siktacka {
          * @return data in raw bytes format.
          */
         network::buffer_t to_bytes() const noexcept;
+
+        std::vector<std::shared_ptr<Event>>::iterator begin();
+
+        std::vector<std::shared_ptr<Event>>::iterator end();
     };
 }
 

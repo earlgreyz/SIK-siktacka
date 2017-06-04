@@ -45,7 +45,9 @@ namespace sikclient {
         std::mutex messages_mutex;
 
         // Events received
-        std::list<std::unique_ptr<siktacka::Event>> events;
+        std::queue<std::string> events;
+
+        std::vector<std::string> players;
     public:
         Client(const std::string &name,
                const std::string &host, network::port_t port,
@@ -91,6 +93,10 @@ namespace sikclient {
          * Sends message to game server.
          */
         void send_message();
+
+        void send_event();
+
+        void initialize_players(siktacka::Event *);
     };
 }
 

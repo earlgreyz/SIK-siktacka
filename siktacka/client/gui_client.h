@@ -13,12 +13,16 @@ namespace sikclient {
 
     public:
         GuiClient(int sock, const std::string &name, network::port_t port);
-        void send_event(siktacka::Event *event);
+
+        void send_event(const std::string &event);
+
         void receive_event();
+
         siktacka::direction_t get_direction() const noexcept;
 
     private:
         void connect_to_gui(const std::string &name, network::port_t port);
+
         void deselect(siktacka::direction_t deselect) noexcept;
     };
 }

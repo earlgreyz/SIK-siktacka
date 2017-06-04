@@ -1,3 +1,4 @@
+#include <sstream>
 #include "event_player_eliminated.h"
 
 using namespace siktacka;
@@ -25,8 +26,18 @@ EventPlayerEliminated::EventPlayerEliminated(
 
     // Check length to avoid unallocated memory access
     if (length != EVENT_PLAYER_ELIMINATED_HEADER_LEN) {
-        throw std::invalid_argument("Unexpected end of data");
+        throw std::invalid_argument("Unexpected data in PLAYER_ELIMINATED");
     }
 
     player_no = *reinterpret_cast<const player_no_t *>(data);
+}
+
+std::string EventPlayerEliminated::to_string(
+        const std::vector<std::string> &players) const {
+    std::ostringstream os;
+    if (players.size() < player_no) {
+        throw std::invalid_argument("Player with given number does not exist");
+    }
+    os << "PLAYER_ELIMINATED " << players[player_no];
+    return os.str();
 }

@@ -41,8 +41,15 @@ namespace siktacka {
          * @return length of event bytes representation.
          */
         std::size_t get_len() const noexcept override;
+
+        /**
+         * Converts event to string.
+         * @return converted event.
+         */
+        std::string to_string(
+                const std::vector<std::string> &players) const override;
+
     };
 }
-
 
 #endif

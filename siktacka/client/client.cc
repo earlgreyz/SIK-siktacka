@@ -5,6 +5,8 @@
 #include <fcntl.h>
 #include <chrono>
 #include "client.h"
+#include "../protocol/server/message.h"
+#include "../game/events/event_new_game.h"
 
 using namespace sikclient;
 
@@ -97,7 +99,7 @@ void Client::run() {
             }
 
             if ((*poll)[gui_sock].revents & POLLOUT) {
-                //gui_client->send_event();
+                send_event();
             }
         }
     }
@@ -124,7 +126,27 @@ void Client::add_server_message() noexcept {
 }
 
 void Client::receive_message() {
+    network::buffer_t buffer = receiver->receive_message(server_address);
+    siktacka::ServerMessage message(buffer);
 
+    for (const auto &event: message) {
+        if (event->get_event_no() < event_no) {
+            continue;
+        } else if (event->get_event_no() == event_no) {
+            if (event->get_event_type() == siktacka::event_t::GAME_OVER) {
+                event_no = 0;
+                continue;
+            } else if (event->get_event_type() == siktacka::event_t::NEW_GAME) {
+                initialize_players(event.get());
+            }
+
+            event_no++;
+            events.push(event->to_string(players));
+            (*poll)[gui_sock].events = POLLIN | POLLOUT;
+        } else {
+            break;
+        }
+    }
 }
 
 void Client::send_message() {
@@ -140,5 +162,27 @@ void Client::send_message() {
         messages.pop();
     } catch (const network::WouldBlockException &) {
         return;
+    }
+}
+
+void Client::send_event() {
+    if (events.size() == 0) {
+        (*poll)[gui_sock].events = POLLIN;
+    } else {
+        try {
+            gui_client->send_event(events.front());
+            events.pop();
+        } catch (network::WouldBlockException &) {
+            return;
+        }
+    }
+}
+
+void Client::initialize_players(siktacka::Event *event) {
+    siktacka::EventNewGame *new_game =
+            reinterpret_cast<siktacka::EventNewGame *>(event);
+
+    for (const std::string &player: *new_game) {
+        players.push_back(player);
     }
 }

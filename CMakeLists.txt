@@ -29,7 +29,8 @@ set(SOURCE_FILES
         siktacka/game/events/event_new_game.cc siktacka/game/events/event_new_game.h
         siktacka/game/events/event_pixel.cc siktacka/game/events/event_pixel.h
         siktacka/game/events/event_game_over.cc siktacka/game/events/event_game_over.h
-        siktacka/game/events/event_player_eliminated.cc siktacka/game/events/event_player_eliminated.h)
+        siktacka/game/events/event_player_eliminated.cc siktacka/game/events/event_player_eliminated.h
+        siktacka/game/events/event_factory.cc siktacka/game/events/event_factory.h)
 
 set(SERVER_SOURCE_FILES
         siktacka/random.cc siktacka/random.h
@@ -40,7 +41,7 @@ set(SERVER_SOURCE_FILES
         sitacka-server.cpp network/connections.cc
         network/connections.h siktacka/game/events.cc siktacka/game/events.h siktacka/game/i_event_listener.h network/constants.h network/i_connection_listener.h)
 
-set(CLIENT_SOURCE_FILES sitacka-client.cpp siktacka/client/client.h siktacka/client/client.cc siktacka/client/gui_client.cc siktacka/client/gui_client.h siktacka/game/events/event_factory.cc siktacka/game/events/event_factory.h)
+set(CLIENT_SOURCE_FILES sitacka-client.cpp siktacka/client/client.h siktacka/client/client.cc siktacka/client/gui_client.cc siktacka/client/gui_client.h)
 
 add_executable(client ${SOURCE_FILES} ${CLIENT_SOURCE_FILES})
 add_executable(server ${SOURCE_FILES} ${SERVER_SOURCE_FILES})

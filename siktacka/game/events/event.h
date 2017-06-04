@@ -1,6 +1,7 @@
 #ifndef SIK_SIKTACKA_EVENT_H
 #define SIK_SIKTACKA_EVENT_H
 
+#include <iostream>
 #include "../../protocol/server/constants.h"
 #include "../../types.h"
 #include "../../../network/types.h"
@@ -57,6 +58,13 @@ namespace siktacka {
          * @return event type.
          */
         event_t get_event_type() const noexcept;
+
+        /**
+         * Converts event to string.
+         * @return converted event.
+         */
+        virtual std::string
+        to_string(const std::vector<std::string> &players) const = 0;
     };
 }
 

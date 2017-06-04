@@ -1,3 +1,4 @@
+#include <sstream>
 #include "event_new_game.h"
 
 using namespace siktacka;
@@ -71,15 +72,41 @@ EventNewGame::EventNewGame(event_no_t event_no, const char *data,
         throw std::invalid_argument("Invalid username");
     }
 
+    std::string last_player = "";
+
     // Parse names
     while (off < length) {
         std::string player_name(data + off);
+        if (player_name < last_player) {
+            throw std::invalid_argument("Players not in alphabetical order");
+        }
+
         try {
             add_player(player_name);
+            last_player = player_name;
         } catch (std::overflow_error &e) {
             // It should not happen but just in case we'll catch it
             throw std::invalid_argument(e.what());
         }
         off += player_name.length() + 1;
     }
+}
+
+std::set<std::string>::const_iterator EventNewGame::begin() const noexcept {
+    return players.begin();
+}
+
+std::set<std::string>::const_iterator EventNewGame::end() const noexcept {
+    return players.end();
+}
+
+std::string
+EventNewGame::to_string(
+        const std::vector<std::string> &players) const noexcept {
+    std::ostringstream os;
+    os << "NEW_GAME " << max_x << " " << max_y;
+    for (const auto &player: players) {
+        os << " " << player;
+    }
+    return os.str();
 }

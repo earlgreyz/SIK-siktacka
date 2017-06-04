@@ -35,8 +35,7 @@ void GuiClient::connect_to_gui(const std::string &host, network::port_t port) {
     freeaddrinfo(addr_result);
 }
 
-void GuiClient::send_event(siktacka::Event *event) {
-    // TODO: send event to GUI
+void GuiClient::send_event(const std::string &event) {
 }
 
 void GuiClient::receive_event() {
