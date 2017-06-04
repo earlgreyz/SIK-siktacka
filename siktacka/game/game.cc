@@ -1,19 +1,20 @@
-#include <algorithm>
-#include <csignal>
-#include <sys/time.h>
 #include "game.h"
-#include "../protocol/server/event_player_eliminated.h"
-#include "../protocol/server/event_pixel.h"
-#include "../protocol/server/event_game_over.h"
+#include "events/event_player_eliminated.h"
+#include "events/event_pixel.h"
+#include "events/event_game_over.h"
+#include <algorithm>
+#include <sys/time.h>
 
 using namespace siktacka;
 
 
-Game::Game(const siktacka::GameOptions &game_options) noexcept
-        : Game(GameOptions(game_options)) {}
+Game::Game(const siktacka::GameOptions &game_options, IEventListener *server) noexcept
+        : Game(GameOptions(game_options), server) {
 
-Game::Game(siktacka::GameOptions &&game_options) noexcept
-        : game_options(game_options), frame_signal([&](int) { do_frame(); }) {
+}
+
+Game::Game(siktacka::GameOptions &&game_options, IEventListener *server) noexcept
+        : game_options(game_options), listener(server), frame_signal([&](int) { do_frame(); }) {
     random = std::make_unique<Random>(game_options.seed);
     board = std::make_unique<Board>(game_options.width, game_options.height);
     initialize();
@@ -22,6 +23,7 @@ Game::Game(siktacka::GameOptions &&game_options) noexcept
 void Game::initialize() {
     game_id = random->next();
     players_ready_count = 0u;
+    event_no = 0u;
     for (auto &player: players) {
         player.second.ready = false;
         player.second.in_game = false;
@@ -116,7 +118,7 @@ void Game::do_frame() noexcept {
     request_next_frame();
 
     if (snakes_alive_count <= 1) {
-        events.push_back(std::make_unique<EventGameOver>(events.size()));
+        listener->notify(std::make_unique<EventGameOver>(event_no++));
         running = false;
         initialize();
         return;
@@ -136,7 +138,6 @@ void Game::new_game() noexcept {
 
     board->clear();
     snakes.clear();
-    events.clear();
 
     std::unique_ptr<EventNewGame> event_new_game =
             std::make_unique<EventNewGame>(
@@ -161,7 +162,7 @@ void Game::new_game() noexcept {
     }
 
     snakes_alive_count = player_no - 1u;
-    events.push_back(std::move(event_new_game));
+    listener->notify(std::move(event_new_game));
 }
 
 std::unique_ptr<Snake> Game::make_snake() noexcept {
@@ -176,14 +177,18 @@ void Game::place_snake(Snake *snake, player_no_t player_no) noexcept {
     position_t snake_position = snake->get_position();
     if (board->is_empty(snake_position)) {
         board->mark_occupied(snake_position);
-        events.push_back(std::make_unique<EventPixel>(
-                events.size(), player_no, snake_position
+        listener->notify(std::make_unique<EventPixel>(
+                event_no++, player_no, snake_position
         ));
     } else {
         snakes_alive_count--;
-        events.push_back(std::make_unique<EventPlayerEliminated>(
-                events.size(), player_no
+        listener->notify(std::make_unique<EventPlayerEliminated>(
+                event_no++, player_no
         ));
     }
+}
+
+game_t Game::get_id() const noexcept {
+    return game_id;
 }
 

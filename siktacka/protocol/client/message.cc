@@ -60,11 +60,27 @@ sik::buffer_t ClientMessage::to_bytes() const noexcept {
     *reinterpret_cast<event_no_t *>(data + off) = htobe32(next_event);
     std::copy(player_name.begin(), player_name.end(),
               std::back_inserter(bytes));
-    return std::move(bytes);
+    return bytes;
 }
 
 void ClientMessage::validate() {
     if (player_name.length() > 64) {
         throw std::invalid_argument("Name cannot be longer than 64 characters");
     }
+}
+
+session_t ClientMessage::get_session() const noexcept {
+    return session_id;
+}
+
+direction_t ClientMessage::get_turn_direction() const noexcept {
+    return turn_direction;
+}
+
+event_no_t ClientMessage::get_next_event_no() const noexcept {
+    return next_event;
+}
+
+const std::string &ClientMessage::get_player_name() const noexcept {
+    return player_name;
 }

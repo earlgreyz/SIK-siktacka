@@ -58,6 +58,14 @@ namespace siktacka {
          */
         sik::buffer_t to_bytes() const noexcept;
 
+        session_t get_session() const noexcept;
+
+        direction_t get_turn_direction() const noexcept;
+
+        event_no_t get_next_event_no() const noexcept;
+
+        const std::string &get_player_name() const noexcept;
+
     private:
         /**
          * Validates message params.

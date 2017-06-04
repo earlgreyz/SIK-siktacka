@@ -51,3 +51,19 @@ void Connections::add_client(sockaddr_in address, siktacka::session_t session,
                              connection_t time_point) {
     clients.push_back(Client(address, session, time_point));
 }
+
+std::queue<sockaddr_in> Connections::get_connected_clients(connection_t connection_time) noexcept {
+    std::queue<sockaddr_in> connected_clients;
+    auto client = clients.begin();
+    while (client != clients.end()) {
+        if (client->is_active(connection_time)) {
+            connected_clients.push(client->address);
+            client++;
+        } else {
+            auto inactive_client = client;
+            client++;
+            clients.erase(inactive_client);
+        }
+    }
+    return connected_clients;
+}

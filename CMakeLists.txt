@@ -25,11 +25,11 @@ set(SOURCE_FILES
         siktacka/protocol/server/constants.h
         siktacka/protocol/server/message.cc siktacka/protocol/server/message.h
 
-        siktacka/protocol/server/event.cc siktacka/protocol/server/event.h
-        siktacka/protocol/server/event_new_game.cc siktacka/protocol/server/event_new_game.h
-        siktacka/protocol/server/event_pixel.cc siktacka/protocol/server/event_pixel.h
-        siktacka/protocol/server/event_game_over.cc siktacka/protocol/server/event_game_over.h
-        siktacka/protocol/server/event_player_eliminated.cc siktacka/protocol/server/event_player_eliminated.h
+        siktacka/game/events/event.cc siktacka/game/events/event.h
+        siktacka/game/events/event_new_game.cc siktacka/game/events/event_new_game.h
+        siktacka/game/events/event_pixel.cc siktacka/game/events/event_pixel.h
+        siktacka/game/events/event_game_over.cc siktacka/game/events/event_game_over.h
+        siktacka/game/events/event_player_eliminated.cc siktacka/game/events/event_player_eliminated.h
         sik/sender.cc sik/sender.h
         sik/receiver.cc sik/receiver.h)
 
@@ -37,7 +37,8 @@ set(SERVER_SOURCE_FILES
         siktacka/random.cc siktacka/random.h
         siktacka/server.cc siktacka/server.h
         siktacka/game/board.cc siktacka/game/board.h
-        sitacka-server.cpp siktacka/connections.cc siktacka/connections.h)
+        sitacka-server.cpp sik/connections.cc
+        sik/connections.h siktacka/game/events.cc siktacka/game/events.h siktacka/game/i_event_listener.h)
 
 set(CLIENT_SOURCE_FILES sitacka-client.cpp)
 

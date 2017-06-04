@@ -1,7 +1,7 @@
 #ifndef SIK_SIKTACKA_EVENT_H
 #define SIK_SIKTACKA_EVENT_H
 
-#include "constants.h"
+#include "../../protocol/server/constants.h"
 #include "../../types.h"
 #include "../../../sik/types.h"
 
@@ -47,6 +47,9 @@ namespace siktacka {
          * @return length of event bytes.
          */
         virtual std::size_t get_len() const noexcept;
+
+        event_no_t get_event_no() const noexcept;
+        event_t get_event_type() const noexcept;
     };
 }
 

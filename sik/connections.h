@@ -8,7 +8,8 @@
 #include <chrono>
 #include <map>
 #include <list>
-#include "types.h"
+#include <queue>
+#include "../siktacka/types.h"
 
 
 namespace sik {
@@ -36,6 +37,8 @@ namespace sik {
 
         void add_client(sockaddr_in address, siktacka::session_t session,
                         connection_t time_point);
+
+        std::queue<sockaddr_in> get_connected_clients(connection_t connection_time) noexcept;
     };
 }
 

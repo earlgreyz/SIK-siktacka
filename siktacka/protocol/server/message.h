@@ -3,7 +3,7 @@
 
 #include <vector>
 #include <memory>
-#include "event.h"
+#include "../../game/events/event.h"
 #include "../../types.h"
 #include "../../../sik/types.h"
 

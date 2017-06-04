@@ -8,11 +8,14 @@
 
 #include "types.h"
 #include "game/game.h"
+#include "game/events.h"
+#include "game/i_event_listener.h"
 #include "../error.h"
 #include "../sik/types.h"
 #include "../sik/poll.h"
 #include "../sik/sender.h"
 #include "../sik/receiver.h"
+#include "../sik/connections.h"
 #include "protocol/server/message.h"
 
 
@@ -34,7 +37,9 @@ namespace siktacka {
     /**
      * Game server.
      */
-    class Server {
+    class Server: public IEventListener {
+        using MessageInstance =
+        std::pair<std::unique_ptr<ServerMessage>, std::queue<sockaddr_in>>;
     private:
         /// Server UDP socket
         int sock;
@@ -46,12 +51,14 @@ namespace siktacka {
         std::unique_ptr<sik::Poll<1>> poll;
 
         /// Current game
+        std::unique_ptr<Events> events;
         std::unique_ptr<Game> game;
-        std::queue<std::unique_ptr<ServerMessage>> messages;
+        std::queue<MessageInstance> messages;
 
+        // Server helper structures
+        std::unique_ptr<sik::Connections> connections;
         std::unique_ptr<sik::Sender> sender;
         std::unique_ptr<sik::Receiver> receiver;
-
     public:
         /**
          * Constructs new Server instance.
@@ -72,6 +79,12 @@ namespace siktacka {
 
         ~Server();
 
+        void notify(std::unique_ptr<Event> event);
+
+        void clear_events() {
+            events->clear();
+        }
+
         /**
          * Starts server loop, going forever until stop method is asynchronously
          * called.
@@ -89,6 +102,7 @@ namespace siktacka {
          * @throws ServerException when opening socket fails.
          */
         void open_socket();
+
         /**
          * Binds socket to the given port.
          * @param port port to bind socket to.
@@ -99,6 +113,8 @@ namespace siktacka {
         void send_message();
 
         void receive_message();
+
+        void add_message(event_no_t next_event, sockaddr_in client_address);
     };
 }
 

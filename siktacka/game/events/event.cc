@@ -21,7 +21,7 @@ sik::buffer_t siktacka::Event::to_bytes() const noexcept {
     char * data = bytes.data();
     std::size_t off = 0u;
 
-    sik::buffer_t event_data(std::move(get_data()));
+    sik::buffer_t event_data(get_data());
     std::move(event_data.begin(), event_data.end(), std::back_inserter(bytes));
 
     const event_len_t len =
@@ -39,9 +39,17 @@ sik::buffer_t siktacka::Event::to_bytes() const noexcept {
     crc32_t crc = get_crc(bytes);
     bytes.resize(off + sizeof(crc32_t), 0);
     *reinterpret_cast<crc32_t *>(data + off) = htobe32(crc);
-    return std::move(bytes);
+    return bytes;
 }
 
 std::size_t Event::get_len() const noexcept {
     return EVENT_HEADER_LEN;
+}
+
+event_no_t Event::get_event_no() const noexcept {
+    return event_no;
+}
+
+event_t Event::get_event_type() const noexcept {
+    return event_type;
 }

@@ -52,7 +52,7 @@ namespace {
                          &game_options.seed)->default_value(
                          time(NULL)),
                  "Random number generator seed");
-        return std::move(description);
+        return description;
     }
 
     /**
