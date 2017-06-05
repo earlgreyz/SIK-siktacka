@@ -22,9 +22,7 @@ network::buffer_t ServerMessage::to_bytes() const noexcept {
     char * data = const_cast<char *>(bytes.data());
     *reinterpret_cast<game_t *>(data) = htobe32(game_id);
     for (const auto &event: events) {
-        network::buffer_t event_bytes(event->to_bytes());
-        std::move(event_bytes.begin(), event_bytes.end(),
-                  std::back_inserter(bytes));
+        bytes += event->to_bytes();
     }
     return bytes;
 }

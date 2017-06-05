@@ -37,9 +37,9 @@ network::buffer_t siktacka::Event::to_bytes() const noexcept {
     off = bytes.size();
 
     crc32_t crc = get_crc(bytes);
-    bytes.resize(bytes.size() + sizeof(crc32_t), 0);
+    bytes.resize(bytes.size() + sizeof(crc32_t) + 1, '\0');
     *reinterpret_cast<crc32_t *>(data + off) = htobe32(crc);
-    return std::move(bytes);
+    return bytes;
 }
 
 std::size_t Event::get_len() const noexcept {

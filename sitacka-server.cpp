@@ -60,7 +60,7 @@ namespace {
      * @param argc arguments count
      * @param argv argument values
      */
-    void parse_arguments(int argc, char *argv[]) {
+    void parse_arguments(int argc, char *argconstv[]) {
         po::options_description description = prepare_description();
         po::variables_map variables_map;
 

@@ -42,7 +42,7 @@ namespace siktacka {
      */
     class Server : public IEventListener, public IConnectionListener {
         using MessageInstance =
-        std::pair<std::unique_ptr<ServerMessage>, std::queue<sockaddr_in>>;
+        std::pair<ServerMessage, std::queue<sockaddr_in>>;
     private:
         /// Server UDP socket
         int sock;

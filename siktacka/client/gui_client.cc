@@ -36,11 +36,16 @@ void GuiClient::connect_to_gui(const std::string &host, network::port_t port) {
 }
 
 void GuiClient::send_event(const std::string &event) {
+    std::cout << event;
+    if (write(sock, event.data(), event.size()) != 0) {
+        throw std::runtime_error("GUI Disconnected");
+    }
 }
 
 void GuiClient::receive_event() {
     network::buffer_t buffer(16u, 0);
-    if ((read(sock, buffer.data(), sizeof(buffer) - 1)) <= 0) {
+    char * data = const_cast<char *>(buffer.data());
+    if (read(sock, data, buffer.size() - 1) <= 0) {
         throw std::runtime_error("GUI Disconnected");
     }
 

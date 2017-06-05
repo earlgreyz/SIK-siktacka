@@ -96,7 +96,7 @@ void Client::run() {
     while (!stopping) {
         while (!stopping) {
             try {
-                poll->wait(20);
+                poll->wait(40);
             } catch (const network::PollTimeoutException &) {
                 continue;
             }
@@ -173,13 +173,11 @@ void Client::send_message() {
     {
         std::lock_guard<std::mutex> lock(messages_mutex);
         if (messages.size() == 0) {
-            std::cout << "No message" << std::endl;
             (*poll)[server_sock].events = POLLIN;
             return;
         }
     }
     try {
-        std::cout << "Sending " << messages.front()->get_turn_direction() << std::endl;
         sender->send_message(server_address, messages.front()->to_bytes());
         messages.pop();
     } catch (const network::WouldBlockException &) {

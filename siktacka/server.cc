@@ -54,13 +54,12 @@ void Server::on_event(std::shared_ptr<Event> event) {
             std::chrono::system_clock::now();
     std::queue<sockaddr_in> clients = connections->get_connected_clients(
             event_time);
-    std::unique_ptr<ServerMessage> message = std::make_unique<ServerMessage>(
-            game->get_id());
-    message->add_event(event);
+    ServerMessage message(game->get_id());
+    message.add_event(event);
 
     {
         std::lock_guard<std::mutex> guard(messages_mutex);
-        messages.push(std::make_pair(std::move(message), clients));
+        messages.push(std::make_pair(message, clients));
         (*poll)[sock].events = POLLIN | POLLOUT;
     }
 
@@ -119,8 +118,10 @@ void Server::send_message() {
     MessageInstance &mi = messages.front();
 
     try {
-        //sender->send_message(mi.second.front(), mi.first->to_bytes());
-        mi.second.pop();
+        sockaddr_in address = mi.second.front();
+        ServerMessage message = mi.first;
+        sender->send_message(address, message.to_bytes());
+        //mi.second.pop();
     } catch (const network::WouldBlockException &) {
         return;
     }
@@ -134,7 +135,6 @@ void Server::receive_message() {
                 std::chrono::high_resolution_clock::now();
         try {
             player_action(client_address, &message, connection_time);
-            std::cout << message.get_player_name() << " action: " << message.get_turn_direction() << std::endl;
         } catch (const std::out_of_range &e) {
             std::cerr << e.what() << std::endl;
             player_connect(client_address, &message, connection_time);
@@ -163,16 +163,15 @@ void Server::make_message(event_no_t next_event, sockaddr_in client_address) {
     std::queue<sockaddr_in> client;
     client.push(client_address);
 
-    std::unique_ptr<ServerMessage> message = std::make_unique<ServerMessage>(
-            game->get_id());
+    ServerMessage message(game->get_id());
 
     while (!message_events.empty()) {
         std::shared_ptr<Event> &event = message_events.front();
         try {
-            message->add_event(event);
+            message.add_event(event);
         } catch (const std::overflow_error &) {
-            messages.push(std::make_pair(std::move(message), client));
-            message = std::make_unique<ServerMessage>(game->get_id());
+            messages.push(std::make_pair(message, client));
+            message = ServerMessage(game->get_id());
         }
         message_events.pop();
     }
