@@ -16,16 +16,15 @@ Event::Event(event_no_t event_no, event_t event_type)
 
 network::buffer_t siktacka::Event::to_bytes() const noexcept {
     network::buffer_t event_data(get_data());
-    network::buffer_t bytes(EVENT_HEADER_LEN, '\0');
-    char * data = const_cast<char *>(bytes.data());
-    std::size_t off;
+    network::buffer_t bytes(EVENT_HEADER_LEN - sizeof(crc32_t), '\0');
 
     std::move(event_data.begin(), event_data.end(), std::back_inserter(bytes));
 
     const event_len_t len =
-            static_cast<event_len_t>(bytes.size()) - sizeof(event_len_t);
+            static_cast<event_len_t>(bytes.size() - sizeof(event_len_t));
 
-    off = 0u;
+    char * data = const_cast<char *>(bytes.data());
+    std::size_t off = 0u;
 
     *reinterpret_cast<event_len_t *>(data + off) = htobe32(len);
     off += sizeof(event_len_t);
@@ -37,7 +36,7 @@ network::buffer_t siktacka::Event::to_bytes() const noexcept {
     off = bytes.size();
 
     crc32_t crc = get_crc(bytes);
-    bytes.resize(bytes.size() + sizeof(crc32_t) + 1, '\0');
+    bytes.resize(bytes.size() + sizeof(crc32_t), '\0');
     *reinterpret_cast<crc32_t *>(data + off) = htobe32(crc);
     return bytes;
 }

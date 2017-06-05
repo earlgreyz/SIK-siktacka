@@ -68,7 +68,7 @@ EventNewGame::EventNewGame(event_no_t event_no, const char *data,
     off += sizeof(pixel_t);
 
     // Check if there is a null termination so string constructor ends properly
-    if (*(data + length) != '\0') {
+    if (*(data + length - 1) != '\0') {
         throw std::invalid_argument("Invalid username");
     }
 

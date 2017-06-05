@@ -4,6 +4,7 @@
 #include <iostream>
 #include <fcntl.h>
 #include <chrono>
+#include <arpa/inet.h>
 #include "client.h"
 #include "../protocol/server/message.h"
 #include "../game/events/event_new_game.h"
@@ -94,33 +95,31 @@ void Client::run() {
     });
 
     while (!stopping) {
-        while (!stopping) {
-            try {
-                poll->wait(40);
-            } catch (const network::PollTimeoutException &) {
-                continue;
-            }
+        try {
+            poll->wait(40);
+        } catch (const network::PollTimeoutException &) {
+            continue;
+        }
 
-            if (stopping) {
-                return;
-            }
+        if (stopping) {
+            return;
+        }
 
-            if ((*poll)[server_sock].revents & POLLIN) {
-                std::cout << "POLLIN from server" << std::endl;
-                receive_message();
-            }
+        if ((*poll)[server_sock].revents & POLLIN) {
+            std::cout << "POLLIN from server" << std::endl;
+            receive_message();
+        }
 
-            if ((*poll)[server_sock].revents & POLLOUT) {
-                send_message();
-            }
+        if ((*poll)[server_sock].revents & POLLOUT) {
+            send_message();
+        }
 
-            if ((*poll)[gui_sock].revents & POLLIN) {
-                gui_client->receive_event();
-            }
+        if ((*poll)[gui_sock].revents & POLLIN) {
+            gui_client->receive_event();
+        }
 
-            if ((*poll)[gui_sock].revents & POLLOUT) {
-                send_event();
-            }
+        if ((*poll)[gui_sock].revents & POLLOUT) {
+            send_event();
         }
     }
 }
@@ -148,6 +147,7 @@ void Client::add_server_message() noexcept {
 
 void Client::receive_message() {
     network::buffer_t buffer = receiver->receive_message(server_address);
+    std::cout << "Received " << buffer << std::endl;
     siktacka::ServerMessage message(buffer);
 
     for (const auto &event: message) {
