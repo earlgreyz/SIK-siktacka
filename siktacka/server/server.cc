@@ -1,5 +1,6 @@
 #include "server.h"
 #include "../protocol/client/message.h"
+#include "../protocol/server/message.h"
 #include <fcntl.h>
 #include <zconf.h>
 #include <arpa/inet.h>
@@ -80,10 +81,12 @@ void Server::stop() noexcept {
 
 void Server::on_event(std::shared_ptr<siktacka::Event> event) {
     connection_t now = std::chrono::high_resolution_clock::now();
-    network::buffer_t message = event->to_bytes();
+    siktacka::ServerMessage message(game->get_id());
+    message.add_event(event);
     std::queue<sockaddr_in> clients = connections->get_connected_clients(now);
+
     std::lock_guard<std::mutex> guard(messages_mutex);
-    messages.push(MessageInstance(message, std::move(clients)));
+    messages.push(MessageInstance(message.to_bytes(), std::move(clients)));
     (*poll)[sock].events = POLLIN | POLLOUT;
 }
 

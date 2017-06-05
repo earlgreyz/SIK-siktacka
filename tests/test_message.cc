@@ -11,8 +11,8 @@ TEST_CASE("Server Message serializes", "[Server Message]") {
     ServerMessage message(17);
     std::shared_ptr<EventNewGame> new_game =
             std::make_shared<EventNewGame>(42, 43, 44);
-    new_game->add_player("M");
-    new_game->add_player("W");
+    new_game->add_player("misio");
+    new_game->add_player("janusz");
     message.add_event(new_game);
 
     network::buffer_t buffer = message.to_bytes();
@@ -26,6 +26,8 @@ TEST_CASE("Server Message serializes", "[Server Message]") {
 
     network::buffer_t event(data + off, buffer.size() - off);
     CHECK(event == new_game->to_bytes());
+
+    CHECK(buffer.length() == 38);
 }
 
 TEST_CASE("Server Message from bytes constructor", "[Server Message]") {
