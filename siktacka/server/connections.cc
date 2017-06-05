@@ -50,7 +50,8 @@ Connections::get_client(sockaddr_in address, siktacka::session_t session,
 }
 
 void Connections::add_client(sockaddr_in address, siktacka::session_t session,
-                             const std::string &name, connection_t time_point) noexcept {
+                             const std::string &name,
+                             connection_t time_point) noexcept {
     clients.push_back(Client(address, session, name, time_point));
 }
 

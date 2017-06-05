@@ -1,5 +1,4 @@
 #include "server.h"
-#include "../protocol/client/message.h"
 #include "../protocol/server/message.h"
 #include <fcntl.h>
 #include <zconf.h>
@@ -28,6 +27,7 @@ Server::Server(network::port_t port, siktacka::GameOptions &&game_options) {
     events = std::make_unique<siktacka::Events>();
     game = std::make_unique<siktacka::Game>(game_options, this);
     connections = std::make_unique<Connections>(this);
+    messages = std::make_unique<Buffer>();
 }
 
 Server::~Server() {
@@ -86,17 +86,17 @@ void Server::on_event(std::shared_ptr<siktacka::Event> event) {
     std::queue<sockaddr_in> clients = connections->get_connected_clients(now);
 
     std::lock_guard<std::mutex> guard(messages_mutex);
-    messages.push(MessageInstance(message.to_bytes(), std::move(clients)));
+    messages->add(Buffer::Message(message.to_bytes(), std::move(clients)));
     (*poll)[sock].events = POLLIN | POLLOUT;
 }
 
 void Server::send_message() {
     {
         std::lock_guard<std::mutex> guard(messages_mutex);
-        while (messages.size() > 0 && current_addresses.empty()) {
-            current_message = messages.front().message;
-            current_addresses = messages.front().addresses;
-            messages.pop();
+        while (!messages->is_empty() && current_addresses.empty()) {
+            Buffer::Message message = messages->pop();
+            current_message = message.buffer;
+            current_addresses = message.addresses;
         }
 
         if (current_addresses.size() == 0) {
@@ -118,46 +118,29 @@ void Server::receive_message() {
     connection_t now = std::chrono::high_resolution_clock::now();
     sockaddr_in address;
     network::buffer_t buffer = receiver->receive_message(address);
-    std::unique_ptr<siktacka::ClientMessage> message;
+    std::shared_ptr<siktacka::ClientMessage> message;
 
     try {
-        message = std::make_unique<siktacka::ClientMessage>(buffer);
+        message = std::make_shared<siktacka::ClientMessage>(buffer);
     } catch (const std::invalid_argument &) {
-        // Ignore invalid message
         return;
     }
 
     try {
-        const std::string &player = connections->get_client(
-                address, message->get_session(), now);
-        if (player != message->get_player_name()) {
-            std::cerr << "Spoofing detected for player " << player << std::endl;
-            return;
-        }
-        game->player_action(player, message->get_turn_direction());
+        on_action(message, address, now);
     } catch (const std::invalid_argument &e) {
         std::cerr << e.what() << std::endl;
     } catch (const std::out_of_range &) {
-        try {
-            game->add_player(message->get_player_name());
-            connections->add_client(address, message->get_session(),
-                                    message->get_player_name(), now);
-        } catch (const std::invalid_argument &) {
-            std::cerr << "Player " << message->get_player_name()
-                      << " already in game" << std::endl;
-            return;
-        }
+        on_connect(message, address, now);
     }
-
-    make_response_message(address, message->get_next_event_no());
 }
 
 void Server::on_disconnect(const std::string &name) {
     game->remove_player(name);
 }
 
-void Server::make_response_message(sockaddr_in address,
-                                   siktacka::event_no_t event_no) {
+void Server::make_message(sockaddr_in address,
+                          siktacka::event_no_t event_no) {
     siktacka::ServerMessage message(game->get_id());
     std::queue<std::shared_ptr<siktacka::Event>> message_events =
             events->get_events(event_no);
@@ -171,29 +154,47 @@ void Server::make_response_message(sockaddr_in address,
             message_events.pop();
         } catch (const std::overflow_error &) {
             network::buffer_t buffer = message.to_bytes();
-            {
-                std::lock_guard<std::mutex> guard(messages_mutex);
-                messages.push(MessageInstance(buffer, address));
-            }
+            add_message(Buffer::Message(buffer, address));
             message = siktacka::ServerMessage(game->get_id());
         }
     }
 
     network::buffer_t buffer = message.to_bytes();
-    {
-        std::lock_guard<std::mutex> guard(messages_mutex);
-        messages.push(MessageInstance(buffer, address));
+    add_message(Buffer::Message(buffer, address));
+}
+
+void Server::add_message(Buffer::Message message) noexcept {
+    std::lock_guard<std::mutex> guard(messages_mutex);
+    messages->add(message);
+    (*poll)[sock].events = POLLIN | POLLOUT;
+}
+
+void Server::on_action(std::shared_ptr<siktacka::ClientMessage> message,
+                       sockaddr_in address, connection_t now) {
+    const std::string &player =
+            connections->get_client(address, message->get_session(), now);
+
+    if (player != message->get_player_name()) {
+        throw std::invalid_argument("Spoofing detected for player " + player);
     }
+
+    game->player_action(player, message->get_turn_direction());
+    make_message(address, message->get_next_event_no());
 }
 
-Server::MessageInstance::MessageInstance(network::buffer_t message,
-                                         sockaddr_in address)
-        : message(message) {
-    addresses.push(address);
-}
+void Server::on_connect(std::shared_ptr<siktacka::ClientMessage> message,
+                        sockaddr_in address, connection_t now) noexcept {
+    try {
+        game->add_player(message->get_player_name());
 
-Server::MessageInstance::MessageInstance(network::buffer_t message,
-                                         std::queue<sockaddr_in> &&addresses)
-        : message(message), addresses(addresses) {
+        siktacka::session_t session = message->get_session();
+        std::string name = message->get_player_name();
+        connections->add_client(address, session, name, now);
 
+        make_message(address, message->get_next_event_no());
+    } catch (const std::invalid_argument &) {
+        std::cerr << "Player " << message->get_player_name()
+                  << "already in game" << std::endl;
+        return;
+    }
 }

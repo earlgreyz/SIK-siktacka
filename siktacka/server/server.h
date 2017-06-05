@@ -11,6 +11,8 @@
 #include "../../network/receiver.h"
 #include "i_connection_listener.h"
 #include "connections.h"
+#include "buffer.h"
+#include "../protocol/client/message.h"
 
 namespace sikserver {
     const network::port_t SERVER_DEFAULT_PORT = 12345u;
@@ -33,15 +35,7 @@ namespace sikserver {
         std::unique_ptr<network::Sender> sender;
         std::unique_ptr<network::Receiver> receiver;
 
-        struct MessageInstance {
-            network::buffer_t message;
-            std::queue<sockaddr_in> addresses;
-
-            MessageInstance(network::buffer_t, sockaddr_in);
-            MessageInstance(network::buffer_t, std::queue<sockaddr_in> &&);
-        };
-
-        std::queue<MessageInstance> messages;
+        std::unique_ptr<Buffer> messages;
         std::mutex messages_mutex;
 
         network::buffer_t current_message;
@@ -105,7 +99,40 @@ namespace sikserver {
          */
         void receive_message();
 
-        void make_response_message(sockaddr_in address, siktacka::event_no_t event_no);
+        /**
+         * Creates message for given address with events starting from
+         * event_no. May create more than one message if events doesn't fit
+         * in one. Thread safe.
+         * @param address client address.
+         * @param event_no next expected event number.
+         */
+        void make_message(sockaddr_in address, siktacka::event_no_t event_no);
+
+        /**
+         * Adds message to the buffer. Thread safe.
+         * @param message
+         */
+        void add_message(Buffer::Message message) noexcept;
+
+        /**
+         * Tries to perform game action based on the client message.
+         * @throws std::invalid_argument if client name doesn't match
+         * @throws std::out_of_range if the client does not exist.
+         * @param message player message.
+         * @param address player address.
+         * @param now timestamp the message was received.
+         */
+        void on_action(std::shared_ptr<siktacka::ClientMessage> message,
+                       sockaddr_in address, connection_t now);
+
+        /**
+         * Adds player to the connected clients and to the game.
+         * @param message player message.
+         * @param address player address
+         * @param now timestamp the message was received.
+         */
+        void on_connect(std::shared_ptr<siktacka::ClientMessage> message,
+                        sockaddr_in address, connection_t now) noexcept;
     };
 }
 

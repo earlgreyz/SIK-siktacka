@@ -154,7 +154,6 @@ void Game::new_game() noexcept {
                     game_options.width, game_options.height, 0u);
 
     for (auto &player: players) {
-        std::cout << players.size() << std::endl;
         try {
             event_new_game->add_player(player.first);
             player.second.player_no = player_no;
