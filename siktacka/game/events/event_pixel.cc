@@ -11,8 +11,8 @@ EventPixel::EventPixel(event_no_t event_no, player_no_t player_no,
 }
 
 network::buffer_t EventPixel::get_data() const noexcept {
-    network::buffer_t bytes(EVENT_PIXEL_HEADER_LEN);
-    char *data = bytes.data();
+    network::buffer_t bytes(EVENT_PIXEL_HEADER_LEN, '\0');
+    char *data = const_cast<char *>(bytes.data());
     std::size_t off = 0u;
 
     *reinterpret_cast<player_no_t *>(data + off) = player_no;

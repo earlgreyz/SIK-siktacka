@@ -18,8 +18,9 @@ void ServerMessage::add_event(std::shared_ptr<Event> event) {
 }
 
 network::buffer_t ServerMessage::to_bytes() const noexcept {
-    network::buffer_t bytes(sizeof(game_t));
-    *reinterpret_cast<game_t *>(bytes.data()) = htobe32(game_id);
+    network::buffer_t bytes(sizeof(game_t), '\0');
+    char * data = const_cast<char *>(bytes.data());
+    *reinterpret_cast<game_t *>(data) = htobe32(game_id);
     for (const auto &event: events) {
         network::buffer_t event_bytes(event->to_bytes());
         std::move(event_bytes.begin(), event_bytes.end(),

@@ -47,8 +47,8 @@ ClientMessage::ClientMessage(const network::buffer_t &bytes) {
 network::buffer_t ClientMessage::to_bytes() const noexcept {
     const std::size_t data_length =
             sizeof(session_t) + sizeof(direction_t) + sizeof(event_no_t);
-    network::buffer_t bytes(data_length);
-    char *data = bytes.data();
+    network::buffer_t bytes(data_length, '\0');
+    char *data = const_cast<char *>(bytes.data());
     std::size_t off = 0u;
 
     *reinterpret_cast<session_t *>(data + off) = htobe64(session_id);

@@ -1,4 +1,6 @@
 #include <tuple>
+#include <iostream>
+#include <arpa/inet.h>
 #include "connections.h"
 
 using namespace network;
@@ -27,7 +29,8 @@ Connections::Connections(IConnectionListener *listener) noexcept
 const std::string &
 Connections::get_client(sockaddr_in address, siktacka::session_t session,
                         connection_t time_point) {
-    for (auto client = clients.begin(); client != clients.begin(); ++client) {
+
+    for (auto client = clients.begin(); client != clients.end(); ++client) {
         if (client->address == address) {
             if (client->session < session) {
                 throw std::invalid_argument(

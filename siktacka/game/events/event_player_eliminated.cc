@@ -11,8 +11,9 @@ EventPlayerEliminated::EventPlayerEliminated(
 }
 
 network::buffer_t EventPlayerEliminated::get_data() const noexcept {
-    network::buffer_t bytes(EVENT_PLAYER_ELIMINATED_HEADER_LEN);
-    *reinterpret_cast<player_no_t *>(bytes.data()) = player_no;
+    network::buffer_t bytes(EVENT_PLAYER_ELIMINATED_HEADER_LEN, '\0');
+    char * data = const_cast<char *>(bytes.data());
+    *reinterpret_cast<player_no_t *>(data) = player_no;
     return bytes;
 }
 

@@ -119,7 +119,7 @@ void Server::send_message() {
     MessageInstance &mi = messages.front();
 
     try {
-        sender->send_message(mi.second.front(), mi.first->to_bytes());
+        //sender->send_message(mi.second.front(), mi.first->to_bytes());
         mi.second.pop();
     } catch (const network::WouldBlockException &) {
         return;
@@ -135,7 +135,8 @@ void Server::receive_message() {
         try {
             player_action(client_address, &message, connection_time);
             std::cout << message.get_player_name() << " action: " << message.get_turn_direction() << std::endl;
-        } catch (const std::out_of_range &) {
+        } catch (const std::out_of_range &e) {
+            std::cerr << e.what() << std::endl;
             player_connect(client_address, &message, connection_time);
             std::cout << message.get_player_name() << " connected" << std::endl;
         } catch (const std::invalid_argument &) {

@@ -83,7 +83,6 @@ void Client::run() {
         while (!stopping) {
             auto start = high_resolution_clock::now();
             add_server_message();
-            (*poll)[server_sock].events = POLLIN | POLLOUT;
             auto end = high_resolution_clock ::now();
             sleep_time += round_time;
             sleep_time -= duration_cast<milliseconds>(end - start);
@@ -97,8 +96,8 @@ void Client::run() {
     while (!stopping) {
         while (!stopping) {
             try {
-                poll->wait(-1);
-            } catch (const std::runtime_error &) {
+                poll->wait(20);
+            } catch (const network::PollTimeoutException &) {
                 continue;
             }
 

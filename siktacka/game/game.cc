@@ -90,7 +90,7 @@ void Game::remove_player(const std::string &name) noexcept {
 }
 
 void Game::start() noexcept {
-    if (players.size() == 0 || players_ready_count < players.size()) {
+    if (players.size() < 2 || players_ready_count < players.size()) {
         return;
     }
     running = true;
@@ -104,9 +104,9 @@ void Game::start() noexcept {
         microseconds round_time(1000000 / game_options.rounds_per_sec);
         microseconds sleep_time(0);
         while (running) {
-            auto start = high_resolution_clock ::now();
+            auto start = high_resolution_clock::now();
             do_frame();
-            auto end = high_resolution_clock ::now();
+            auto end = high_resolution_clock::now();
             sleep_time += round_time;
             sleep_time -= duration_cast<microseconds>(end - start);
             if (sleep_time > microseconds(0)) {
@@ -115,6 +115,7 @@ void Game::start() noexcept {
             }
         }
     });
+    game_thread.detach();
 }
 
 game_t Game::get_id() const noexcept {
@@ -134,7 +135,7 @@ void Game::do_frame() noexcept {
         if (!snake->is_alive() || !snake->move(game_options.turning_speed)) {
             continue;
         }
-        place_snake(snake, i);
+        listener->on_event(place_snake(snake, i));
     }
 }
 
@@ -145,11 +146,14 @@ void Game::new_game() noexcept {
     board->clear();
     snakes.clear();
 
+    std::queue<std::unique_ptr<Event>> events;
+
     std::unique_ptr<EventNewGame> event_new_game =
             std::make_unique<EventNewGame>(
                     game_options.width, game_options.height, 0u);
 
     for (auto &player: players) {
+        std::cout << players.size() << std::endl;
         try {
             event_new_game->add_player(player.first);
             player.second.player_no = player_no;
@@ -158,7 +162,7 @@ void Game::new_game() noexcept {
             std::unique_ptr<Snake> snake = make_snake();
             snakes_alive_count++;
 
-            place_snake(snake.get(), player_no);
+            events.push(place_snake(snake.get(), player_no));
             snakes.push_back(std::move(snake));
 
             player_no++;
@@ -172,6 +176,10 @@ void Game::new_game() noexcept {
     }
 
     listener->on_event(std::move(event_new_game));
+    while (!events.empty()) {
+        listener->on_event(std::move(events.front()));
+        events.pop();
+    }
 }
 
 std::unique_ptr<Snake> Game::make_snake() noexcept {
@@ -182,22 +190,19 @@ std::unique_ptr<Snake> Game::make_snake() noexcept {
     );
 }
 
-void Game::place_snake(Snake *snake, player_no_t player_no) noexcept {
+std::unique_ptr<Event>
+Game::place_snake(Snake *snake, player_no_t player_no) noexcept {
     position_t snake_position = snake->get_position();
     if (board->is_empty(snake_position)) {
         board->mark_occupied(snake_position);
-        listener->on_event(std::make_unique<EventPixel>(
-                event_no++, player_no, snake_position
-        ));
+        return std::make_unique<EventPixel>(
+                event_no++, player_no, snake_position);
     } else {
         snakes_alive_count--;
-        listener->on_event(std::make_unique<EventPlayerEliminated>(
-                event_no++, player_no
-        ));
+        return std::make_unique<EventPlayerEliminated>(event_no++, player_no);
     }
 }
 
 Game::~Game() {
     running = false;
-    game_thread.join();
 }

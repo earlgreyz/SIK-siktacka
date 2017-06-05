@@ -126,7 +126,7 @@ namespace siktacka {
         /**
          * Starts new game.
          */
-        void new_game() noexcept ;
+        void new_game() noexcept;
 
         /**
          * Creates new snake at random position with random rotation.
@@ -139,7 +139,8 @@ namespace siktacka {
          * @param snake snake to place.
          * @param player_no snake owner.
          */
-        void place_snake(Snake *snake, player_no_t player_no) noexcept;
+        std::unique_ptr<Event>
+        place_snake(Snake *snake, player_no_t player_no) noexcept;
     };
 }
 

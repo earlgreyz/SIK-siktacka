@@ -10,9 +10,9 @@ EventNewGame::EventNewGame(pixel_t max_x, pixel_t max_y,
 }
 
 network::buffer_t EventNewGame::get_data() const noexcept {
-    network::buffer_t bytes(players_len + EVENT_NEW_GAME_HEADER_LEN);
+    network::buffer_t bytes(players_len + EVENT_NEW_GAME_HEADER_LEN, '\0');
     std::size_t off = 0u;
-    char *data = bytes.data();
+    char *data = const_cast<char *>(bytes.data());
 
     *reinterpret_cast<pixel_t *>(data + off) = htobe32(max_x);
     off += sizeof(pixel_t);

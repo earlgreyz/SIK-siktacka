@@ -38,13 +38,16 @@ set(SERVER_SOURCE_FILES
         siktacka/game/snake.cc siktacka/game/snake.h
         siktacka/server.cc siktacka/server.h
         siktacka/game/board.cc siktacka/game/board.h
-        sitacka-server.cpp network/connections.cc
-        network/connections.h siktacka/game/events.cc siktacka/game/events.h siktacka/game/i_event_listener.h network/constants.h network/i_connection_listener.h)
+        network/connections.h network/connections.cc
+        siktacka/game/events.cc siktacka/game/events.h
+        siktacka/game/i_event_listener.h
+        network/constants.h
+        network/i_connection_listener.h)
 
-set(CLIENT_SOURCE_FILES sitacka-client.cpp siktacka/client/client.h siktacka/client/client.cc siktacka/client/gui_client.cc siktacka/client/gui_client.h)
+set(CLIENT_SOURCE_FILES siktacka/client/client.h siktacka/client/client.cc siktacka/client/gui_client.cc siktacka/client/gui_client.h)
 
-add_executable(client ${SOURCE_FILES} ${CLIENT_SOURCE_FILES})
-add_executable(server ${SOURCE_FILES} ${SERVER_SOURCE_FILES})
+add_executable(client sitacka-client.cpp ${SOURCE_FILES} ${CLIENT_SOURCE_FILES})
+add_executable(server sitacka-server.cpp ${SOURCE_FILES} ${SERVER_SOURCE_FILES})
 
 TARGET_LINK_LIBRARIES(client ${Boost_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
 TARGET_LINK_LIBRARIES(server ${Boost_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
