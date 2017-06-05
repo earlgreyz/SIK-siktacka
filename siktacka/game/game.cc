@@ -24,7 +24,7 @@ Game::Game(siktacka::GameOptions &&game_options,
 void Game::initialize() {
     game_id = random->next();
     players_ready_count = 0u;
-    event_no = 0u;
+    event_no = 1u;
     for (auto &player: players) {
         player.second.ready = false;
         player.second.in_game = false;
@@ -84,6 +84,7 @@ void Game::remove_player(const std::string &name) noexcept {
             start();
         }
         players.erase(name);
+        std::cout << name << " removed from game " << std::endl;
     } catch (const std::out_of_range &) {
         return;
     }

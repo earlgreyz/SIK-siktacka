@@ -2,25 +2,20 @@
 #define SIK_SIKTACKA_CONNECTIONS_H
 
 
-#include <netinet/in.h>
-#include <ctime>
-#include <algorithm>
 #include <chrono>
-#include <map>
-#include <list>
+#include <netinet/in.h>
+#include <vector>
 #include <queue>
-#include "../siktacka/types.h"
 #include "i_connection_listener.h"
+#include "../types.h"
 
+namespace sikserver {
+    using connection_t =
+    std::chrono::time_point<std::chrono::high_resolution_clock>;
 
-namespace network {
     class Connections {
-    public:
-        using connection_t =
-        std::chrono::time_point<std::chrono::high_resolution_clock>;
     private:
         struct Client {
-            /// Client socket address
             sockaddr_in address;
             siktacka::session_t session;
             std::string name;
@@ -32,7 +27,8 @@ namespace network {
             bool is_active(connection_t time_point) const noexcept;
         };
 
-        std::list<Client> clients;
+        std::vector<Client> clients;
+
         IConnectionListener *listener;
     public:
         Connections(IConnectionListener *listener) noexcept;
@@ -47,6 +43,7 @@ namespace network {
 
         std::queue<sockaddr_in>
         get_connected_clients(connection_t connection_time) noexcept;
+
     };
 }
 

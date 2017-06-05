@@ -1,9 +1,7 @@
 #include <tuple>
-#include <iostream>
-#include <arpa/inet.h>
 #include "connections.h"
 
-using namespace network;
+using namespace sikserver;
 
 namespace {
     bool operator==(const sockaddr_in &a, const sockaddr_in &b) {
@@ -13,23 +11,24 @@ namespace {
 }
 
 Connections::Client::Client(sockaddr_in address, siktacka::session_t session,
-                            std::string name, connection_t timestamp)
-        : address(std::move(address)), session(session), name(name),
-          timestamp(timestamp) {
+                            std::string name, sikserver::connection_t timestamp)
+        : address(address), session(session), name(name), timestamp(timestamp) {
 
 }
 
-bool Connections::Client::is_active(connection_t time_point) const noexcept {
+bool sikserver::Connections::Client::is_active(
+        sikserver::connection_t time_point) const noexcept {
     return time_point - timestamp < std::chrono::seconds(2);
 }
 
 Connections::Connections(IConnectionListener *listener) noexcept
-        : listener(listener) {}
+        : listener(listener) {
+
+}
 
 const std::string &
 Connections::get_client(sockaddr_in address, siktacka::session_t session,
                         connection_t time_point) {
-
     for (auto client = clients.begin(); client != clients.end(); ++client) {
         if (client->address == address) {
             if (client->session < session) {
@@ -51,18 +50,19 @@ Connections::get_client(sockaddr_in address, siktacka::session_t session,
 }
 
 void Connections::add_client(sockaddr_in address, siktacka::session_t session,
-                             const std::string &name,
-                             connection_t time_point) noexcept {
+                             const std::string &name, connection_t time_point) noexcept {
     clients.push_back(Client(address, session, name, time_point));
 }
 
 std::queue<sockaddr_in>
 Connections::get_connected_clients(connection_t connection_time) noexcept {
     std::queue<sockaddr_in> connected_clients;
+
     auto client = clients.begin();
     while (client != clients.end()) {
         if (client->is_active(connection_time)) {
-            connected_clients.push(client->address);
+            sockaddr_in address = client->address;
+            connected_clients.push(address);
             client++;
         } else {
             auto inactive_client = client;
@@ -71,5 +71,6 @@ Connections::get_connected_clients(connection_t connection_time) noexcept {
             clients.erase(inactive_client);
         }
     }
+
     return connected_clients;
 }

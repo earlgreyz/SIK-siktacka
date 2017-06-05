@@ -36,13 +36,12 @@ set(SERVER_SOURCE_FILES
         siktacka/random.cc siktacka/random.h
         siktacka/game/game.cc siktacka/game/game.h
         siktacka/game/snake.cc siktacka/game/snake.h
-        siktacka/server.cc siktacka/server.h
         siktacka/game/board.cc siktacka/game/board.h
-        network/connections.h network/connections.cc
         siktacka/game/events.cc siktacka/game/events.h
         siktacka/game/i_event_listener.h
         network/constants.h
-        network/i_connection_listener.h)
+        siktacka/server/server.cc siktacka/server/server.h
+        siktacka/server/i_connection_listener.h siktacka/server/connections.cc siktacka/server/connections.h)
 
 set(CLIENT_SOURCE_FILES siktacka/client/client.h siktacka/client/client.cc siktacka/client/gui_client.cc siktacka/client/gui_client.h)
 

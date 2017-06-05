@@ -5,13 +5,13 @@
 #include <boost/program_options.hpp>
 
 #include "error.h"
-#include "siktacka/server.h"
+#include "siktacka/server/server.h"
 
 
 namespace {
     network::port_t server_port;
     siktacka::GameOptions game_options;
-    std::unique_ptr<siktacka::Server> server;
+    std::unique_ptr<sikserver::Server> server;
 
     namespace po = boost::program_options;
 
@@ -35,7 +35,7 @@ namespace {
                 ("port,p",
                  po::value<network::port_t>(
                          &server_port)->default_value(
-                         siktacka::SERVER_DEFAULT_PORT),
+                         sikserver::SERVER_DEFAULT_PORT),
                  "Port")
                 ("rounds,s",
                  po::value<siktacka::rounds_t>(
@@ -60,7 +60,7 @@ namespace {
      * @param argc arguments count
      * @param argv argument values
      */
-    void parse_arguments(int argc, char *argconstv[]) {
+    void parse_arguments(int argc, char *argv[]) {
         po::options_description description = prepare_description();
         po::variables_map variables_map;
 
@@ -91,7 +91,7 @@ namespace {
 int main(int argc, char *argv[]) {
     try {
         parse_arguments(argc, argv);
-        server = std::make_unique<siktacka::Server>(server_port, game_options);
+        server = std::make_unique<sikserver::Server>(server_port, game_options);
         register_signals();
 
         server->run();
