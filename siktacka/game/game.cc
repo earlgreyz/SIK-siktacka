@@ -113,6 +113,7 @@ void Game::start() noexcept {
                 sleep_time = microseconds(0);
             }
         }
+        std::cerr << "Stopping" << std::endl;
     });
     game_thread.detach();
 }
@@ -129,12 +130,18 @@ void Game::do_frame() noexcept {
         return;
     }
 
+    bool did_something = false;
     for (player_no_t i = 0; i < snakes.size(); i++) {
         Snake *snake = snakes[i].get();
         if (!snake->is_alive() || !snake->move(game_options.turning_speed)) {
             continue;
         }
+        did_something = true;
         listener->on_event(place_snake(snake, i));
+    }
+
+    if (!did_something) {
+        std::cout << "Did nothing" << std::endl;
     }
 }
 
@@ -196,6 +203,7 @@ Game::place_snake(Snake *snake, player_no_t player_no) noexcept {
         return std::make_unique<EventPixel>(
                 event_no++, player_no, snake_position);
     } else {
+        snake->die();
         snakes_alive_count--;
         return std::make_unique<EventPlayerEliminated>(event_no++, player_no);
     }

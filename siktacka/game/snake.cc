@@ -28,8 +28,8 @@ void Snake::turn(direction_t direction) noexcept {
 bool Snake::move(turn_speed_t speed) noexcept {
     position_t last_posiion = get_position();
     angle += static_cast<angle_t>((direction * speed) % 360);
-    y += sin(y * M_PI / 180);
-    x += cos(x * M_PI / 180);
+    y += sin(angle * M_PI / 180);
+    x += cos(angle * M_PI / 180);
     return last_posiion != get_position();
 }
 
