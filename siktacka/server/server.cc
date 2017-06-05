@@ -149,13 +149,42 @@ void Server::receive_message() {
         }
     }
 
-    // TODO: make message
+    make_response_message(address, message->get_next_event_no());
 }
 
 void Server::on_disconnect(const std::string &name) {
     game->remove_player(name);
 }
 
+void Server::make_response_message(sockaddr_in address,
+                                   siktacka::event_no_t event_no) {
+    siktacka::ServerMessage message(game->get_id());
+    std::queue<std::shared_ptr<siktacka::Event>> message_events =
+            events->get_events(event_no);
+    if (message_events.size() == 0) {
+        return;
+    }
+
+    while (!message_events.empty()) {
+        try {
+            message.add_event(message_events.front());
+            message_events.pop();
+        } catch (const std::overflow_error &) {
+            network::buffer_t buffer = message.to_bytes();
+            {
+                std::lock_guard<std::mutex> guard(messages_mutex);
+                messages.push(MessageInstance(buffer, address));
+            }
+            message = siktacka::ServerMessage(game->get_id());
+        }
+    }
+
+    network::buffer_t buffer = message.to_bytes();
+    {
+        std::lock_guard<std::mutex> guard(messages_mutex);
+        messages.push(MessageInstance(buffer, address));
+    }
+}
 
 Server::MessageInstance::MessageInstance(network::buffer_t message,
                                          sockaddr_in address)

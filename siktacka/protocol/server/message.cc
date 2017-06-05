@@ -39,7 +39,6 @@ ServerMessage::ServerMessage(const network::buffer_t &bytes) {
             add_event(event);
             off += event->get_len();
         } catch (const invalid_crc &e) {
-            //std::cerr << "Invalid crc stop" << std::endl;
             break;
         } catch (const unknown_event &e) {
             std::cerr << "Unknown event" << std::endl;

@@ -104,6 +104,8 @@ namespace sikserver {
          * Receives single message from socket.
          */
         void receive_message();
+
+        void make_response_message(sockaddr_in address, siktacka::event_no_t event_no);
     };
 }
 
