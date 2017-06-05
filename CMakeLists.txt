@@ -48,7 +48,7 @@ set(CLIENT_SOURCE_FILES
         siktacka/client/client.h siktacka/client/client.cc
         siktacka/client/gui_client.cc siktacka/client/gui_client.h)
 
-set(TESTS_SOURCE_FILES tests/test_event.cc)
+set(TESTS_SOURCE_FILES tests/test_event.cc tests/test_message.cc)
 
 add_executable(client sitacka-client.cpp ${SOURCE_FILES} ${CLIENT_SOURCE_FILES})
 add_executable(server sitacka-server.cpp ${SOURCE_FILES} ${SERVER_SOURCE_FILES})

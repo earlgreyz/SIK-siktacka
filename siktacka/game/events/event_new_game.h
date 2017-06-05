@@ -21,7 +21,7 @@ namespace siktacka {
         /// Player names
         std::set<std::string> players;
         /// Length of player names
-        std::size_t players_len;
+        std::size_t players_len = 0u;
 
         /**
          * @related Event::get_data()

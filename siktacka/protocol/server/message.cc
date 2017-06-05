@@ -22,7 +22,8 @@ network::buffer_t ServerMessage::to_bytes() const noexcept {
     char * data = const_cast<char *>(bytes.data());
     *reinterpret_cast<game_t *>(data) = htobe32(game_id);
     for (const auto &event: events) {
-        bytes += event->to_bytes();
+        network::buffer_t e(event->to_bytes());
+        std::copy(e.begin(), e.end(), std::back_inserter(bytes));
     }
     return bytes;
 }
@@ -30,11 +31,13 @@ network::buffer_t ServerMessage::to_bytes() const noexcept {
 ServerMessage::ServerMessage(const network::buffer_t &bytes) {
     game_id = be32toh(*reinterpret_cast<const game_t *>(bytes.data()));
     std::size_t off = sizeof(game_t);
+
     EventFactory event_factory;
     while (off < bytes.size()) {
         try {
             std::shared_ptr<Event> event = event_factory.make(bytes, off);
             add_event(event);
+            off += event->get_len();
         } catch (const invalid_crc &e) {
             std::cerr << "Invalid crc stop" << std::endl;
             break;

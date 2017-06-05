@@ -17,7 +17,7 @@ namespace siktacka {
         /// Current game id
         game_t game_id;
         /// Message length
-        std::size_t message_len;
+        std::size_t message_len = 0u;
         /// Events sent in message
         std::vector<std::shared_ptr<Event>> events;
 

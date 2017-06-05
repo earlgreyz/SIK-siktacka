@@ -106,7 +106,6 @@ void Client::run() {
         }
 
         if ((*poll)[server_sock].revents & POLLIN) {
-            std::cout << "POLLIN from server" << std::endl;
             receive_message();
         }
 
@@ -147,7 +146,6 @@ void Client::add_server_message() noexcept {
 
 void Client::receive_message() {
     network::buffer_t buffer = receiver->receive_message(server_address);
-    std::cout << "Received " << buffer << std::endl;
     siktacka::ServerMessage message(buffer);
 
     for (const auto &event: message) {
