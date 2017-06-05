@@ -149,23 +149,18 @@ void Client::receive_message() {
     siktacka::ServerMessage message(buffer);
 
     for (const auto &event: message) {
-        std::cout << "Event " << event->get_event_type() << "[" << event->get_event_no() << "] -> ";
         if (event->get_event_no() < event_no) {
-            std::cout << "IGNORED " << event_no << " expected" << std::endl;
             continue;
         } else if (event->get_event_no() == event_no) {
             if (event->get_event_type() == siktacka::event_t::GAME_OVER) {
-                std::cout << "GAME_OVER - reset event_no" << std::endl;
                 event_no = 0;
                 continue;
             } else if (event->get_event_type() == siktacka::event_t::NEW_GAME) {
-                std::cout << "NEW_GAME " << std::endl;
                 initialize_players(event.get());
             }
 
             event_no++;
             events.push(event->to_string(players));
-            std::cout << "QUEUE " << event->to_string(players) << std::endl;
             (*poll)[gui_sock].events = POLLIN | POLLOUT;
         } else {
             break;

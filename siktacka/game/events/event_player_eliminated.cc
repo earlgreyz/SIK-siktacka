@@ -39,6 +39,6 @@ std::string EventPlayerEliminated::to_string(
     if (players.size() < player_no) {
         throw std::invalid_argument("Player with given number does not exist");
     }
-    os << "PLAYER_ELIMINATED " << players[player_no];
+    os << "PLAYER_ELIMINATED " << players[player_no] << "\n";
     return os.str();
 }

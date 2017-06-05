@@ -21,5 +21,5 @@ EventGameOver::EventGameOver(
 std::string
 EventGameOver::to_string(
         const std::vector<std::string> &players) const noexcept {
-    return "GAME_OVER";
+    return "GAME_OVER\n";
 }

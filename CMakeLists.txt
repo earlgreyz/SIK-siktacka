@@ -35,7 +35,7 @@ set(SOURCE_FILES
 
 set(SERVER_SOURCE_FILES
         siktacka/server/server.cc siktacka/server/server.h
-        siktacka/random.cc siktacka/random.h
+        siktacka/game/random.cc siktacka/game/random.h
         siktacka/game/game.cc siktacka/game/game.h
         siktacka/game/snake.cc siktacka/game/snake.h
         siktacka/game/board.cc siktacka/game/board.h

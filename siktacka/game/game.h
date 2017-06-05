@@ -6,7 +6,7 @@
 #include <map>
 #include <thread>
 #include "../types.h"
-#include "../random.h"
+#include "random.h"
 #include "snake.h"
 #include "board.h"
 #include "events.h"

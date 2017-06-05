@@ -1,7 +1,7 @@
 #ifndef SIK_SIKTACKA_RANDOM_H
 #define SIK_SIKTACKA_RANDOM_H
 
-#include "types.h"
+#include "../types.h"
 
 
 namespace siktacka {

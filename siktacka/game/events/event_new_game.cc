@@ -108,5 +108,6 @@ EventNewGame::to_string(
     for (const auto &player: players) {
         os << " " << player;
     }
+    os << "\n";
     return os.str();
 }

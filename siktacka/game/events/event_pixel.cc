@@ -54,6 +54,6 @@ EventPixel::to_string(const std::vector<std::string> &players) const {
     if (players.size() < player_no) {
         throw std::invalid_argument("Player with given number does not exist");
     }
-    os << "PIXEL " << x << " " << y << " " << players[player_no];
+    os << "PIXEL " << x << " " << y << " " << players[player_no] << "\n";
     return os.str();
 }
