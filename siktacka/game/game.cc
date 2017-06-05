@@ -16,6 +16,7 @@ Game::Game(const siktacka::GameOptions &game_options,
 Game::Game(siktacka::GameOptions &&game_options,
            IEventListener *server) noexcept
         : game_options(game_options), listener(server) {
+    running = false;
     random = std::make_unique<Random>(game_options.seed);
     board = std::make_unique<Board>(game_options.width, game_options.height);
     initialize();
@@ -45,15 +46,12 @@ void Game::add_player(const std::string &name) {
 }
 
 void Game::player_action(const std::string &name, direction_t direction) {
-    try {
-        Player &player = players.at(name);
+    if (players.count(name)) {
         if (running) {
-            running_action(player, direction);
+            running_action(players[name], direction);
         } else {
-            starting_action(player, direction);
+            starting_action(players[name], direction);
         }
-    } catch (const std::out_of_range &) {
-        return;
     }
 }
 

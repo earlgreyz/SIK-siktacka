@@ -85,6 +85,7 @@ void Server::on_event(std::shared_ptr<siktacka::Event> event) {
     message.add_event(event);
     std::queue<sockaddr_in> clients = connections->get_connected_clients(now);
 
+    std::cout << "Event " << event->get_event_type() << std::endl;
     std::lock_guard<std::mutex> guard(messages_mutex);
     messages->add(Buffer::Message(message.to_bytes(), std::move(clients)));
     (*poll)[sock].events = POLLIN | POLLOUT;
@@ -116,7 +117,7 @@ void Server::send_message() {
 
 void Server::receive_message() {
     connection_t now = std::chrono::high_resolution_clock::now();
-    sockaddr_in address;
+    sockaddr_in address = sockaddr_in();
     network::buffer_t buffer = receiver->receive_message(address);
     std::shared_ptr<siktacka::ClientMessage> message;
 
@@ -171,7 +172,7 @@ void Server::add_message(Buffer::Message message) noexcept {
 
 void Server::on_action(std::shared_ptr<siktacka::ClientMessage> message,
                        sockaddr_in address, connection_t now) {
-    const std::string &player =
+    std::string player =
             connections->get_client(address, message->get_session(), now);
 
     if (player != message->get_player_name()) {
@@ -186,6 +187,7 @@ void Server::on_connect(std::shared_ptr<siktacka::ClientMessage> message,
                         sockaddr_in address, connection_t now) noexcept {
     try {
         game->add_player(message->get_player_name());
+        std::cout << message->get_player_name() << " connected" << std::endl;
 
         siktacka::session_t session = message->get_session();
         std::string name = message->get_player_name();
@@ -193,8 +195,7 @@ void Server::on_connect(std::shared_ptr<siktacka::ClientMessage> message,
 
         make_message(address, message->get_next_event_no());
     } catch (const std::invalid_argument &) {
-        std::cerr << "Player " << message->get_player_name()
-                  << "already in game" << std::endl;
+        // Player already with that name is already in game
         return;
     }
 }

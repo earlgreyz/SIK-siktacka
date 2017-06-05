@@ -33,16 +33,17 @@ namespace sikserver {
     public:
         Connections(IConnectionListener *listener) noexcept;
 
-        const std::string &
-        get_client(sockaddr_in address, siktacka::session_t session,
-                   connection_t time_point);
+        std::string get_client(sockaddr_in address, siktacka::session_t session,
+                               connection_t now);
 
         void add_client(sockaddr_in address, siktacka::session_t session,
-                        const std::string &name,
-                        connection_t time_point) noexcept;
+                        const std::string &name, connection_t now) noexcept;
 
         std::queue<sockaddr_in>
-        get_connected_clients(connection_t connection_time) noexcept;
+        get_connected_clients(connection_t now) noexcept;
+
+    private:
+        void cleanup_inactive(connection_t now) noexcept;
 
     };
 }
