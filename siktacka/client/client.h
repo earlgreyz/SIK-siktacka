@@ -22,7 +22,7 @@ namespace sikclient {
         int server_sock;
         int gui_sock;
         /// Server address
-        sockaddr_in server_address;
+        sockaddr_storage server_address;
         /// Indicates whether client loop should stop
         bool stopping = false;
 

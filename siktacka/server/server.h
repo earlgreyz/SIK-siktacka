@@ -21,8 +21,6 @@ namespace sikserver {
     private:
         /// Server UDP socket
         int sock;
-        /// Server address bound to the socket.
-        sockaddr_in address;
         /// Indicates whether server should stop main loop
         bool stopping;
         /// Poll for async IO operations.
@@ -39,7 +37,7 @@ namespace sikserver {
         std::mutex messages_mutex;
 
         network::buffer_t current_message;
-        std::queue<sockaddr_in> current_addresses;
+        std::queue<sockaddr_storage> current_addresses;
     public:
         /**
              * Constructs new Server instance.
@@ -75,11 +73,6 @@ namespace sikserver {
         void on_disconnect(const std::string &name) override;
 
     private:
-        /**
-         * Opens new UDP socket and saves it to the sock.
-         * @throws ServerException when opening socket fails.
-         */
-        void open_socket();
 
         /**
          * Binds socket to the given port.
@@ -106,7 +99,8 @@ namespace sikserver {
          * @param address client address.
          * @param event_no next expected event number.
          */
-        void make_message(sockaddr_in address, siktacka::event_no_t event_no);
+        void
+        make_message(sockaddr_storage address, siktacka::event_no_t event_no);
 
         /**
          * Adds message to the buffer. Thread safe.
@@ -123,7 +117,7 @@ namespace sikserver {
          * @param now timestamp the message was received.
          */
         void on_action(std::shared_ptr<siktacka::ClientMessage> message,
-                       sockaddr_in address, connection_t now);
+                       sockaddr_storage address, connection_t now);
 
         /**
          * Adds player to the connected clients and to the game.
@@ -132,7 +126,7 @@ namespace sikserver {
          * @param now timestamp the message was received.
          */
         void on_connect(std::shared_ptr<siktacka::ClientMessage> message,
-                        sockaddr_in address, connection_t now) noexcept;
+                        sockaddr_storage address, connection_t now) noexcept;
     };
 }
 

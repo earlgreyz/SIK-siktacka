@@ -5,6 +5,7 @@
 #include <fcntl.h>
 #include <chrono>
 #include <arpa/inet.h>
+#include <boost/lexical_cast.hpp>
 #include "client.h"
 #include "../protocol/server/message.h"
 #include "../game/events/event_new_game.h"
@@ -42,35 +43,32 @@ Client::~Client() {
 
 
 void Client::open_sockets() {
-    if ((server_sock = socket(AF_INET, SOCK_DGRAM | O_NONBLOCK, IPPROTO_UDP)) <
-        0) {
-        throw std::runtime_error("Error opening server socket");
-    }
-
-    if ((gui_sock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0) {
+        if ((gui_sock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0) {
         throw std::runtime_error("Error opening gui socket");
     }
 }
 
-void Client::setup_address(const std::string &host, uint16_t port) {
-    addrinfo addr_hints;
-    addrinfo *addr_result;
-    memset(&addr_hints, 0, sizeof(addr_hints));
-    addr_hints.ai_family = AF_INET;
-    addr_hints.ai_socktype = SOCK_DGRAM;
-    addr_hints.ai_protocol = IPPROTO_UDP;
+void Client::setup_address(const std::string &host, network::port_t port) {
+    addrinfo hints;
+    addrinfo *result;
+    std::string port_buffer = boost::lexical_cast<std::string>(port);
 
-    if (getaddrinfo(host.c_str(), nullptr, &addr_hints, &addr_result)
-        != 0) {
+    memset(&hints, 0, sizeof(hints));
+    hints.ai_family = AF_UNSPEC;
+    hints.ai_socktype = SOCK_DGRAM;
+    hints.ai_protocol = IPPROTO_UDP;
+
+    if (getaddrinfo(host.c_str(), port_buffer.c_str(), &hints, &result) != 0) {
         throw std::invalid_argument("Error getting server_address");
     }
 
-    server_address.sin_family = AF_INET;
-    sockaddr_in *sockaddr_result = (sockaddr_in *) addr_result->ai_addr;
-    server_address.sin_addr.s_addr = sockaddr_result->sin_addr.s_addr;
-    server_address.sin_port = htons(port);
+    if ((server_sock = socket(result->ai_family, SOCK_DGRAM | O_NONBLOCK,
+                              IPPROTO_UDP)) < 0) {
+        throw std::runtime_error("Error opening server socket");
+    }
 
-    freeaddrinfo(addr_result);
+    memcpy(&server_address, result->ai_addr, result->ai_addrlen);
+    freeaddrinfo(result);
 }
 
 void Client::run() {
@@ -98,6 +96,8 @@ void Client::run() {
         try {
             poll->wait(40);
         } catch (const network::PollTimeoutException &) {
+            continue;
+        } catch (const std::runtime_error) {
             continue;
         }
 
@@ -145,7 +145,7 @@ void Client::add_server_message() noexcept {
 }
 
 void Client::receive_message() {
-    network::buffer_t buffer = receiver->receive_message(server_address);
+    network::buffer_t buffer = receiver->receive_message(&server_address);
     siktacka::ServerMessage message(buffer);
 
     for (const auto &event: message) {
@@ -177,7 +177,7 @@ void Client::send_message() {
         }
     }
     try {
-        sender->send_message(server_address, messages.front()->to_bytes());
+        sender->send_message(&server_address, messages.front()->to_bytes());
         messages.pop();
     } catch (const network::WouldBlockException &) {
         return;

@@ -11,11 +11,11 @@ namespace sikserver {
     public:
         struct Message {
             network::buffer_t buffer;
-            std::queue<sockaddr_in> addresses;
+            std::queue<sockaddr_storage> addresses;
 
-            Message(network::buffer_t, sockaddr_in) noexcept;
+            Message(network::buffer_t, sockaddr_storage) noexcept;
 
-            Message(network::buffer_t, std::queue<sockaddr_in> &&) noexcept;
+            Message(network::buffer_t, std::queue<sockaddr_storage> &&) noexcept;
         };
     private:
         std::queue<Message> messages;

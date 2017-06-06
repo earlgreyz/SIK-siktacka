@@ -16,12 +16,12 @@ namespace sikserver {
     class Connections {
     private:
         struct Client {
-            sockaddr_in address;
+            sockaddr_storage address;
             siktacka::session_t session;
             std::string name;
             connection_t timestamp;
 
-            Client(sockaddr_in address, siktacka::session_t session,
+            Client(sockaddr_storage address, siktacka::session_t session,
                    std::string name, connection_t timestamp);
 
             bool is_active(connection_t time_point) const noexcept;
@@ -33,13 +33,14 @@ namespace sikserver {
     public:
         Connections(IConnectionListener *listener) noexcept;
 
-        std::string get_client(sockaddr_in address, siktacka::session_t session,
-                               connection_t now);
+        std::string
+        get_client(sockaddr_storage address, siktacka::session_t session,
+                   connection_t now);
 
-        void add_client(sockaddr_in address, siktacka::session_t session,
+        void add_client(sockaddr_storage address, siktacka::session_t session,
                         const std::string &name, connection_t now) noexcept;
 
-        std::queue<sockaddr_in>
+        std::queue<sockaddr_storage>
         get_connected_clients(connection_t now) noexcept;
 
     private:

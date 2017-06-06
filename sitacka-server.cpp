@@ -95,7 +95,8 @@ int main(int argc, char *argv[]) {
         register_signals();
 
         server->run();
-    } catch (const std::exception &) {
+    } catch (const std::exception &e) {
+        std::cout << "Server stopped with " << e.what() << std::endl;
         return RETURN_ERROR;
     }
     return RETURN_OK;

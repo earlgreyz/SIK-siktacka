@@ -37,7 +37,8 @@ namespace network {
          * @throws ConnectionException when sendto finishes with error
          */
         void
-        send_message(const sockaddr_in &address, const buffer_t &buffer) const;
+        send_message(sockaddr_storage *address,
+                     const buffer_t &buffer) const;
     };
 }
 

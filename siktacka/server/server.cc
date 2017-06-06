@@ -1,8 +1,8 @@
 #include "server.h"
 #include "../protocol/server/message.h"
+#include <netdb.h>
+#include <boost/lexical_cast.hpp>
 #include <fcntl.h>
-#include <zconf.h>
-#include <arpa/inet.h>
 
 using namespace sikserver;
 
@@ -11,7 +11,6 @@ Server::Server(network::port_t port,
         : Server::Server(port, siktacka::GameOptions(game_options)) {}
 
 Server::Server(network::port_t port, siktacka::GameOptions &&game_options) {
-    open_socket();
     bind_socket(port);
 
     try {
@@ -36,20 +35,38 @@ Server::~Server() {
     }
 }
 
-void Server::open_socket() {
-    if ((sock = socket(AF_INET, SOCK_DGRAM | O_NONBLOCK, IPPROTO_UDP)) < 0) {
-        throw std::runtime_error("Error opening socket");
-    }
-}
-
 void Server::bind_socket(network::port_t port) {
-    address.sin_family = AF_INET;
-    address.sin_addr.s_addr = htonl(INADDR_ANY);
-    address.sin_port = htons(port);
+    addrinfo hints;
+    addrinfo *result;
+    addrinfo *rp;
 
-    if (bind(sock, (sockaddr *) &address, (socklen_t) sizeof(address)) < 0) {
-        throw std::runtime_error("Error binding to socket");
+    std::string port_buffer = boost::lexical_cast<std::string>(port);
+
+    memset(&hints, 0, sizeof(hints));
+    hints.ai_family = AF_UNSPEC;
+    hints.ai_socktype = SOCK_DGRAM;
+    hints.ai_protocol = IPPROTO_UDP;
+
+    if (getaddrinfo(nullptr, port_buffer.c_str(), &hints, &result) != 0) {
+        throw std::invalid_argument("Error setting server_address");
     }
+
+    if ((sock = socket(rp->ai_family, SOCK_DGRAM | O_NONBLOCK, IPPROTO_UDP))
+                < 0) {
+        throw std::runtime_error("Error creating socket");
+    }
+
+    for (rp = result; rp != nullptr; rp = rp->ai_next) {
+        if (bind(sock, rp->ai_addr, rp->ai_addrlen) == 0) {
+            break;
+        }
+    }
+
+    if (rp == nullptr) {
+        throw std::runtime_error("Could not bind to address");
+    }
+
+    freeaddrinfo(result);
 }
 
 void Server::run() {
@@ -83,7 +100,8 @@ void Server::on_event(std::shared_ptr<siktacka::Event> event) {
     connection_t now = std::chrono::high_resolution_clock::now();
     siktacka::ServerMessage message(game->get_id());
     message.add_event(event);
-    std::queue<sockaddr_in> clients = connections->get_connected_clients(now);
+    std::queue<sockaddr_storage> clients = connections->get_connected_clients(
+            now);
 
     std::cout << "Event " << event->get_event_type() << std::endl;
     std::lock_guard<std::mutex> guard(messages_mutex);
@@ -107,8 +125,8 @@ void Server::send_message() {
     }
 
     try {
-        sockaddr_in address = current_addresses.front();
-        sender->send_message(address, current_message);
+        sockaddr_storage address = current_addresses.front();
+        sender->send_message(&address, current_message);
         current_addresses.pop();
     } catch (const network::WouldBlockException &) {
         return;
@@ -117,13 +135,14 @@ void Server::send_message() {
 
 void Server::receive_message() {
     connection_t now = std::chrono::high_resolution_clock::now();
-    sockaddr_in address = sockaddr_in();
-    network::buffer_t buffer = receiver->receive_message(address);
+    sockaddr_storage address = sockaddr_storage();
+    network::buffer_t buffer = receiver->receive_message(&address);
     std::shared_ptr<siktacka::ClientMessage> message;
 
     try {
         message = std::make_shared<siktacka::ClientMessage>(buffer);
     } catch (const std::invalid_argument &) {
+        std::cerr << "Invalid message received" << std::endl;
         return;
     }
 
@@ -140,7 +159,7 @@ void Server::on_disconnect(const std::string &name) {
     game->remove_player(name);
 }
 
-void Server::make_message(sockaddr_in address,
+void Server::make_message(sockaddr_storage address,
                           siktacka::event_no_t event_no) {
     siktacka::ServerMessage message(game->get_id());
     std::queue<std::shared_ptr<siktacka::Event>> message_events =
@@ -171,7 +190,7 @@ void Server::add_message(Buffer::Message message) noexcept {
 }
 
 void Server::on_action(std::shared_ptr<siktacka::ClientMessage> message,
-                       sockaddr_in address, connection_t now) {
+                       sockaddr_storage address, connection_t now) {
     std::string player =
             connections->get_client(address, message->get_session(), now);
 
@@ -184,7 +203,7 @@ void Server::on_action(std::shared_ptr<siktacka::ClientMessage> message,
 }
 
 void Server::on_connect(std::shared_ptr<siktacka::ClientMessage> message,
-                        sockaddr_in address, connection_t now) noexcept {
+                        sockaddr_storage address, connection_t now) noexcept {
     try {
         game->add_player(message->get_player_name());
         std::cout << message->get_player_name() << " connected" << std::endl;

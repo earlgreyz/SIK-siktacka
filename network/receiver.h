@@ -27,7 +27,7 @@ namespace network {
          * @return received message
          * @throws runtime_error if recvfrom finishes with error
          */
-        buffer_t receive_message(const sockaddr_in &address);
+        buffer_t receive_message(sockaddr_storage *address);
     };
 }
 

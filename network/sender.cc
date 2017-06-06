@@ -1,21 +1,28 @@
 #include <iostream>
 #include "sender.h"
-#include <arpa/inet.h>
 
 using namespace network;
 
 
-void Sender::send_message(const sockaddr_in &address,
+void Sender::send_message(sockaddr_storage *address,
                           const network::buffer_t &buffer) const {
-    socklen_t address_len = sizeof(address);
-    ssize_t length = sendto(sock, buffer.data(), buffer.size(), 0,
-                            (sockaddr *) &address, address_len);
+    sockaddr *receiver = reinterpret_cast<sockaddr *>(address);
+    socklen_t socklen;
+
+    if (address->ss_family == AF_INET6) {
+        socklen = sizeof(sockaddr_in6);
+    } else if (address->ss_family == AF_INET) {
+        socklen = sizeof(sockaddr_in);
+    } else {
+        throw std::invalid_argument("Family not supported");
+    }
+
+    ssize_t length;
+    length = sendto(sock, buffer.data(), buffer.size(), 0, receiver, socklen);
 
     if (length < 0 && errno == EWOULDBLOCK) {
         throw WouldBlockException();
-    }
-
-    if (length < 0) {
+    } else if (length < 0) {
         std::cerr << "Error sending " << errno << std::endl;
     }
 }

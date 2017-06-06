@@ -3,13 +3,14 @@
 
 using namespace sikserver;
 
-Buffer::Message::Message(network::buffer_t buffer, sockaddr_in address) noexcept
+Buffer::Message::Message(network::buffer_t buffer,
+                         sockaddr_storage address) noexcept
         : buffer(buffer) {
     addresses.push(address);
 }
 
 Buffer::Message::Message(network::buffer_t buffer,
-                         std::queue<sockaddr_in> &&addresses) noexcept
+                         std::queue<sockaddr_storage> &&addresses) noexcept
         : buffer(buffer), addresses(addresses) {
 
 }
