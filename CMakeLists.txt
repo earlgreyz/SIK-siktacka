@@ -42,11 +42,13 @@ set(SERVER_SOURCE_FILES
         siktacka/game/i_event_listener.h
         siktacka/game/events.cc siktacka/game/events.h
         siktacka/server/i_connection_listener.h
-        siktacka/server/connections.cc siktacka/server/connections.h siktacka/server/buffer.cc siktacka/server/buffer.h)
+        siktacka/server/connections.cc siktacka/server/connections.h
+        siktacka/server/buffer.cc siktacka/server/buffer.h)
 
 set(CLIENT_SOURCE_FILES
         siktacka/client/client.h siktacka/client/client.cc
-        siktacka/client/gui_client.cc siktacka/client/gui_client.h)
+        siktacka/client/gui_client.cc siktacka/client/gui_client.h
+        siktacka/client/parser.cc siktacka/client/parser.h)
 
 set(TESTS_SOURCE_FILES tests/test_event.cc tests/test_message.cc)
 

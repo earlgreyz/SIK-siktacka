@@ -201,6 +201,7 @@ void Client::initialize_players(siktacka::Event *event) {
     siktacka::EventNewGame *new_game =
             reinterpret_cast<siktacka::EventNewGame *>(event);
 
+    players.clear();
     for (const std::string &player: *new_game) {
         players.push_back(player);
     }
