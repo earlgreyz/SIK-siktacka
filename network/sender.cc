@@ -21,7 +21,7 @@ void Sender::send_message(sockaddr_storage *address,
     length = sendto(sock, buffer.data(), buffer.size(), 0, receiver, socklen);
 
     if (length < 0 && errno == EWOULDBLOCK) {
-        throw WouldBlockException();
+        throw would_block_error();
     } else if (length < 0) {
         std::cerr << "Error sending " << errno << std::endl;
     }

@@ -13,16 +13,16 @@
 #include "connections.h"
 #include "buffer.h"
 #include "../protocol/client/message.h"
+#include "../../network/socket.h"
 
 namespace sikserver {
     const network::port_t SERVER_DEFAULT_PORT = 12345u;
 
     class Server : public siktacka::IEventListener, public IConnectionListener {
     private:
-        /// Server UDP socket
-        int sock;
         /// Indicates whether server should stop main loop
         bool stopping;
+        std::unique_ptr<network::Socket> socket;
         /// Poll for async IO operations.
         std::unique_ptr<network::Poll<1>> poll;
 
@@ -56,8 +56,6 @@ namespace sikserver {
         Server(network::port_t port = SERVER_DEFAULT_PORT,
                siktacka::GameOptions &&game_options = siktacka::GameOptions());
 
-        ~Server();
-
         void run();
 
         void stop() noexcept;
@@ -73,19 +71,6 @@ namespace sikserver {
         void on_disconnect(const std::string &name) override;
 
     private:
-        /**
-         * Opens new UDP socket and saves it to the sock.
-         * @throws ServerException when opening socket fails.*/
-        void open_socket();
-
-        /**
-         * Binds socket to the given port.
-         * @param port port to bind socket to.
-         * @throws ServerException when binding fails.
-         */
-        void bind_socket(network::port_t port);
-
-
         /**
          * Sends single message from messages queue.
          */

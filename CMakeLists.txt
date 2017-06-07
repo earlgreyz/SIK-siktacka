@@ -43,7 +43,7 @@ set(SERVER_SOURCE_FILES
         siktacka/game/events.cc siktacka/game/events.h
         siktacka/server/i_connection_listener.h
         siktacka/server/connections.cc siktacka/server/connections.h
-        siktacka/server/buffer.cc siktacka/server/buffer.h)
+        siktacka/server/buffer.cc siktacka/server/buffer.h network/socket.cc network/socket.h)
 
 set(CLIENT_SOURCE_FILES
         siktacka/client/client.h siktacka/client/client.cc

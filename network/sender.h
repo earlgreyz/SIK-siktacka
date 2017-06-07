@@ -11,7 +11,7 @@ namespace network {
     /**
      * Exception thrown when function finishes with EWOULDBLOCK errno.
      */
-    class WouldBlockException : public std::exception {
+    class would_block_error : public std::exception {
     };
 
     /**
@@ -37,8 +37,7 @@ namespace network {
          * @throws ConnectionException when sendto finishes with error
          */
         void
-        send_message(sockaddr_storage *address,
-                     const buffer_t &buffer) const;
+        send_message(sockaddr_storage *address, const buffer_t &buffer) const;
     };
 }
 

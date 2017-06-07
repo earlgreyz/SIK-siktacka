@@ -95,7 +95,7 @@ void Client::run() {
     while (!stopping) {
         try {
             poll->wait(40);
-        } catch (const network::PollTimeoutException &) {
+        } catch (const network::poll_timeout &) {
             continue;
         } catch (const std::runtime_error) {
             continue;
@@ -179,7 +179,7 @@ void Client::send_message() {
     try {
         sender->send_message(&server_address, messages.front()->to_bytes());
         messages.pop();
-    } catch (const network::WouldBlockException &) {
+    } catch (const network::would_block_error &) {
         return;
     }
 }
@@ -191,7 +191,7 @@ void Client::send_event() {
         try {
             gui_client->send_event(events.front());
             events.pop();
-        } catch (network::WouldBlockException &) {
+        } catch (network::would_block_error &) {
             return;
         }
     }

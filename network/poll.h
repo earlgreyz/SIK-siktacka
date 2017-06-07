@@ -10,18 +10,18 @@ namespace network {
     /**
      * Exception thrown when poll error occurs.
      */
-    class PollException : public Exception {
+    class poll_error : public Exception {
     public:
-        explicit PollException(const std::string &message) : Exception(
+        explicit poll_error(const std::string &message) : Exception(
                 message) {}
 
-        explicit PollException(std::string &&message) : Exception(message) {}
+        explicit poll_error(std::string &&message) : Exception(message) {}
     };
 
     /**
      * Exception called when poll timeouts.
      */
-    class PollTimeoutException : public std::exception {
+    class poll_timeout : public std::exception {
     };
 
     template<std::size_t max_clients>
@@ -97,7 +97,7 @@ namespace network {
 
             try {
                 get_index(fd);
-                throw PollException("fd already in the poll");
+                throw poll_error("fd already in the poll");
             } catch (const std::out_of_range &) {}
 
             try {
@@ -141,7 +141,7 @@ namespace network {
 
             int res = poll(clients, clients_length, timeout);
             if (res == 0) {
-                throw PollTimeoutException();
+                throw poll_timeout();
             } else if (res < 0) {
                 throw std::runtime_error("Error when calling poll");
             }

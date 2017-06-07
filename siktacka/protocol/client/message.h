@@ -10,6 +10,7 @@
 namespace siktacka {
     constexpr std::size_t CLIENT_MESSAGE_HEADER_LEN =
             sizeof(session_t) + sizeof(direction_t) + sizeof(event_no_t);
+
     class ClientMessage {
     private:
         session_t session_id;

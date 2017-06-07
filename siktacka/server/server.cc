@@ -11,45 +11,24 @@ Server::Server(network::port_t port,
         : Server::Server(port, siktacka::GameOptions(game_options)) {}
 
 Server::Server(network::port_t port, siktacka::GameOptions &&game_options) {
-    open_socket();
-    bind_socket(port);
+    socket = std::make_unique<network::Socket>
+            (AF_INET6, SOCK_DGRAM | O_NONBLOCK, IPPROTO_UDP);
+    socket->bind_address(port);
 
     try {
         poll = std::make_unique<network::Poll<1>>();
-        poll->add_descriptor(sock, POLLIN | POLLOUT);
-    } catch (const network::PollException &e) {
+        poll->add_descriptor(socket->get_descriptor(), POLLIN | POLLOUT);
+    } catch (const network::poll_error &e) {
         throw std::runtime_error(e.what());
     }
 
-    sender = std::make_unique<network::Sender>(sock);
-    receiver = std::make_unique<network::Receiver>(sock);
+    sender = std::make_unique<network::Sender>(socket->get_descriptor());
+    receiver = std::make_unique<network::Receiver>(socket->get_descriptor());
 
     events = std::make_unique<siktacka::Events>();
     game = std::make_unique<siktacka::Game>(game_options, this);
     connections = std::make_unique<Connections>(this);
     messages = std::make_unique<Buffer>();
-}
-
-Server::~Server() {
-    if (close(sock) < 0) {
-        std::cerr << "Error closing server socket" << std::endl;
-    }
-}
-
-void Server::open_socket() {
-    if ((sock = socket(AF_INET6, SOCK_DGRAM, IPPROTO_UDP)) < 0) {
-        throw std::runtime_error("Error creating socket");
-    }
-}
-
-void Server::bind_socket(network::port_t port) {
-    sockaddr_in6 serveraddr;
-    memset(&serveraddr, 0, sizeof(serveraddr));
-    serveraddr.sin6_family = AF_INET6;
-    serveraddr.sin6_port   = htons(port);
-    if (bind(sock, (struct sockaddr *)&serveraddr, sizeof(serveraddr)) < 0) {
-        throw std::invalid_argument("Error binding to address");
-    }
 }
 
 void Server::run() {
@@ -65,11 +44,11 @@ void Server::run() {
             return;
         }
 
-        if ((*poll)[sock].revents & POLLIN) {
+        if ((*poll)[socket->get_descriptor()].revents & POLLIN) {
             receive_message();
         }
 
-        if ((*poll)[sock].revents & POLLOUT) {
+        if ((*poll)[socket->get_descriptor()].revents & POLLOUT) {
             send_message();
         }
     }
@@ -89,7 +68,7 @@ void Server::on_event(std::shared_ptr<siktacka::Event> event) {
     std::cout << "Event " << event->get_event_type() << std::endl;
     std::lock_guard<std::mutex> guard(messages_mutex);
     messages->add(Buffer::Message(message.to_bytes(), std::move(clients)));
-    (*poll)[sock].events = POLLIN | POLLOUT;
+    (*poll)[socket->get_descriptor()].events = POLLIN | POLLOUT;
 }
 
 void Server::send_message() {
@@ -102,7 +81,7 @@ void Server::send_message() {
         }
 
         if (current_addresses.size() == 0) {
-            (*poll)[sock].events = POLLIN;
+            (*poll)[socket->get_descriptor()].events = POLLIN;
             return;
         }
     }
@@ -111,7 +90,7 @@ void Server::send_message() {
         sockaddr_storage address = current_addresses.front();
         sender->send_message(&address, current_message);
         current_addresses.pop();
-    } catch (const network::WouldBlockException &) {
+    } catch (const network::would_block_error &) {
         return;
     }
 }
@@ -169,7 +148,7 @@ void Server::make_message(sockaddr_storage address,
 void Server::add_message(Buffer::Message message) noexcept {
     std::lock_guard<std::mutex> guard(messages_mutex);
     messages->add(message);
-    (*poll)[sock].events = POLLIN | POLLOUT;
+    (*poll)[socket->get_descriptor()].events = POLLIN | POLLOUT;
 }
 
 void Server::on_action(std::shared_ptr<siktacka::ClientMessage> message,
