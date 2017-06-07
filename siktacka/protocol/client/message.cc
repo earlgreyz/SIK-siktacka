@@ -27,6 +27,10 @@ ClientMessage::ClientMessage(session_t session_id, direction_t turn_direction,
 }
 
 ClientMessage::ClientMessage(const network::buffer_t &bytes) {
+    if (bytes.length() < CLIENT_MESSAGE_HEADER_LEN + 1) {
+        throw std::invalid_argument("Unexpected end of message");
+    }
+
     const char *data = bytes.data();
     std::size_t off = 0u;
 
