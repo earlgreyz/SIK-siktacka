@@ -113,7 +113,7 @@ void Game::start() noexcept {
                 sleep_time = microseconds(0);
             }
         }
-        std::cerr << "Stopping" << std::endl;
+        std::cout << "Game finished" << std::endl;
     });
     game_thread.detach();
 }

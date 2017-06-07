@@ -47,14 +47,6 @@ namespace network {
         void bind_address(sockaddr *address, socklen_t address_len) const;
 
         /**
-         * Binds socket to the given host and port.
-         * @param hostname server hostname.
-         * @param port server port.
-         * @throws bind_error if binding fails.
-         */
-        void bind_address(const std::string &hostname, port_t port) const;
-
-        /**
          * Binds socket to localhost with given port.
          * @param port port.
          * @throws bind_error if binding fails.

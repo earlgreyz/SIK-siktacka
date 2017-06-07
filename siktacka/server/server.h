@@ -6,14 +6,14 @@
 #include <mutex>
 #include "../../network/types.h"
 #include "../game/game.h"
+#include "../protocol/client/message.h"
+#include "../../network/socket.h"
 #include "../../network/poll.h"
 #include "../../network/sender.h"
 #include "../../network/receiver.h"
 #include "i_connection_listener.h"
 #include "connections.h"
 #include "buffer.h"
-#include "../protocol/client/message.h"
-#include "../../network/socket.h"
 
 namespace sikserver {
     const network::port_t SERVER_DEFAULT_PORT = 12345u;
@@ -22,29 +22,39 @@ namespace sikserver {
     private:
         /// Indicates whether server should stop main loop
         bool stopping;
+        /// Server socket
         std::unique_ptr<network::Socket> socket;
         /// Poll for async IO operations.
         std::unique_ptr<network::Poll<1>> poll;
 
+        /// Game events
         std::unique_ptr<siktacka::Events> events;
+        /// The actual game server
         std::unique_ptr<siktacka::Game> game;
-        std::unique_ptr<Connections> connections;
 
+        /// Clients connected
+        std::unique_ptr<Connections> connections;
+        /// Message sender
         std::unique_ptr<network::Sender> sender;
+        /// Message receiver
         std::unique_ptr<network::Receiver> receiver;
 
+        /// Messages buffer
         std::unique_ptr<Buffer> messages;
+        /// Mutex on messages
         std::mutex messages_mutex;
 
+        /// Message queued to be sent next
         network::buffer_t current_message;
+        /// Recipients of the current message
         std::queue<sockaddr_storage> current_addresses;
     public:
         /**
-             * Constructs new Server instance.
-             * @param port port port to listen on.
-             * @param game_options game options.
-             * @throws ServerException
-             */
+         * Constructs new Server instance.
+         * @param port port port to listen on.
+         * @param game_options game options.
+         * @throws ServerException
+         */
         Server(network::port_t port, const siktacka::GameOptions &game_options);
 
         /**
@@ -56,8 +66,15 @@ namespace sikserver {
         Server(network::port_t port = SERVER_DEFAULT_PORT,
                siktacka::GameOptions &&game_options = siktacka::GameOptions());
 
+        /**
+         * Runs server main loop. May be interrupted by calling stop
+         * asynchronously from another thread or via system interrupt.
+         */
         void run();
 
+        /**
+         * Stops server.
+         */
         void stop() noexcept;
 
 
@@ -68,6 +85,11 @@ namespace sikserver {
          */
         void on_event(std::shared_ptr<siktacka::Event> event) override;
 
+        /**
+         * Implements IConnectionListener interface.
+         * Sends game the message about player disconnected.
+         * @param name
+         */
         void on_disconnect(const std::string &name) override;
 
     private:
@@ -80,6 +102,14 @@ namespace sikserver {
          * Receives single message from socket.
          */
         void receive_message();
+
+        /**
+         * Checks messages queue has a message available, discarding the ones
+         * with empty clients queue and setting.
+         * @return whether a message and a client pair for sending a message
+         * is available
+         */
+        bool can_send_message() noexcept;
 
         /**
          * Creates message for given address with events starting from

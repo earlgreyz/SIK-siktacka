@@ -10,12 +10,7 @@ namespace network {
     /**
      * Exception thrown when poll error occurs.
      */
-    class poll_error : public Exception {
-    public:
-        explicit poll_error(const std::string &message) : Exception(
-                message) {}
-
-        explicit poll_error(std::string &&message) : Exception(message) {}
+    class poll_error : std::exception {
     };
 
     /**
@@ -88,7 +83,6 @@ namespace network {
          * @param fd file descriptor to add.
          * @throws std::invalid_argument when fd is not a valid file descriptor.
          * @throws std::overflow_error when clients array is full.
-         * @throws PollException when file descriptor is already in the poll.
          */
         void add_descriptor(int fd, short int events = POLLIN) {
             if (fd < 0) {
@@ -96,8 +90,9 @@ namespace network {
             }
 
             try {
+                // Descriptor already in the poll ignore
                 get_index(fd);
-                throw poll_error("fd already in the poll");
+                return;
             } catch (const std::out_of_range &) {}
 
             try {
@@ -130,9 +125,9 @@ namespace network {
         /**
          * Waits for events up to a timeout.
          * @param timeout milliseconds to wait for events before timeout
-         * @throws PollTimeoutException when no event occurs during given
+         * @throws poll_timeout when no event occurs during given
          * ammount of time
-         * @throws std::runtime_error when `poll` returns an error
+         * @throws poll_error when `poll` returns an error
          */
         void wait(int timeout) {
             for (pollfd &client: clients) {
@@ -143,7 +138,7 @@ namespace network {
             if (res == 0) {
                 throw poll_timeout();
             } else if (res < 0) {
-                throw std::runtime_error("Error when calling poll");
+                throw poll_error();
             }
         }
 

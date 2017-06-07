@@ -29,10 +29,6 @@ void Socket::bind_address(sockaddr *address, socklen_t address_len) const {
     }
 }
 
-void Socket::bind_address(const std::string &hostname, port_t port) const {
-
-}
-
 void Socket::bind_address(port_t port) const {
     sockaddr_in6 address;
 
