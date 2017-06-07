@@ -1,6 +1,7 @@
 #include <tuple>
 #include <cstring>
 #include <iostream>
+#include <algorithm>
 #include "connections.h"
 
 using namespace sikserver;
@@ -69,15 +70,14 @@ Connections::get_connected_clients(connection_t now) noexcept {
 }
 
 void Connections::cleanup_inactive(connection_t now) noexcept {
-    auto client = clients.begin();
-    while (client != clients.end()) {
-        if (!client->is_active(now)) {
-            auto inactive_client = client;
-            listener->on_disconnect(client->name);
-            client++;
-            clients.erase(inactive_client);
-        } else {
-            client++;
+    for (const auto &client: clients) {
+        if (!client.is_active(now)) {
+            listener->on_disconnect(client.name);
         }
     }
+
+    clients.erase(std::remove_if(clients.begin(), clients.end(),
+                                 [&now](const auto &client) {
+                                     return !client.is_active(now);
+                                 }), clients.end());
 }

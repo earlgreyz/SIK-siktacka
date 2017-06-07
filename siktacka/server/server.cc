@@ -54,18 +54,25 @@ void Server::stop() noexcept {
 
 void Server::on_event(std::shared_ptr<siktacka::Event> event) {
     connection_t now = std::chrono::high_resolution_clock::now();
-
+    std::queue<sockaddr_storage> clients;
     siktacka::ServerMessage message(game->get_id());
+
     message.add_event(event);
-    std::queue<sockaddr_storage> clients =
-            connections->get_connected_clients(now);
+    {
+        std::lock_guard<std::mutex> guard(connections_mutex);
+        clients = connections->get_connected_clients(now);
+    }
 
     add_message(Buffer::Message(message.to_bytes(), std::move(clients)));
 }
 
+void Server::on_disconnect(const std::string &name) {
+    game->remove_player(name);
+}
 
 bool Server::can_send_message() noexcept {
     std::lock_guard<std::mutex> guard(messages_mutex);
+
     while (!messages->is_empty() && current_addresses.empty()) {
         Buffer::Message message = messages->pop();
         current_message = message.buffer;
@@ -78,7 +85,6 @@ bool Server::can_send_message() noexcept {
     }
     return true;
 }
-
 
 void Server::send_message() {
     if (!can_send_message()) {
@@ -116,10 +122,6 @@ void Server::receive_message() {
     }
 }
 
-void Server::on_disconnect(const std::string &name) {
-    game->remove_player(name);
-}
-
 void Server::make_message(sockaddr_storage address,
                           siktacka::event_no_t event_no) {
     siktacka::ServerMessage message(game->get_id());
@@ -150,8 +152,12 @@ void Server::add_message(Buffer::Message message) noexcept {
 
 void Server::on_action(std::shared_ptr<siktacka::ClientMessage> message,
                        sockaddr_storage address, connection_t now) {
-    std::string player =
-            connections->get_client(address, message->get_session(), now);
+    std::string player;
+
+    {
+        std::lock_guard<std::mutex> guard(connections_mutex);
+        player = connections->get_client(address, message->get_session(), now);
+    }
 
     if (player != message->get_player_name()) {
         throw std::invalid_argument("Spoofing detected for player " + player);
@@ -169,7 +175,11 @@ void Server::on_connect(std::shared_ptr<siktacka::ClientMessage> message,
 
         siktacka::session_t session = message->get_session();
         std::string name = message->get_player_name();
-        connections->add_client(address, session, name, now);
+
+        {
+            std::lock_guard<std::mutex> guard(connections_mutex);
+            connections->add_client(address, session, name, now);
+        }
 
         make_message(address, message->get_next_event_no());
     } catch (const std::invalid_argument &) {

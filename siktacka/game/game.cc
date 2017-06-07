@@ -33,6 +33,7 @@ void Game::initialize() {
 }
 
 void Game::add_player(const std::string &name) {
+    std::lock_guard<std::mutex> guard(players_mutex);
     if (name.length() > MAX_PLAYER_NAME_LENGTH) {
         throw std::length_error(
                 "Player name cannot be longer than 64 characters");
@@ -46,6 +47,7 @@ void Game::add_player(const std::string &name) {
 }
 
 void Game::player_action(const std::string &name, direction_t direction) {
+    std::lock_guard<std::mutex> guard(players_mutex);
     if (players.count(name)) {
         if (running) {
             running_action(players[name], direction);
@@ -73,19 +75,19 @@ Game::running_action(const Player &player, direction_t direction) noexcept {
 }
 
 void Game::remove_player(const std::string &name) noexcept {
-    try {
-        Player &player = players.at(name);
-        if (!running) {
-            if (player.ready) {
-                --players_ready_count;
-            }
-            start();
-        }
-        players.erase(name);
-        std::cout << name << " removed from game " << std::endl;
-    } catch (const std::out_of_range &) {
+    std::lock_guard<std::mutex> guard(players_mutex);
+    auto player = players.find(name);
+    if (player == players.end()) {
         return;
     }
+    if (player->second.ready) {
+        --players_ready_count;
+    }
+    players.erase(player);
+    if (!running) {
+        start();
+    }
+    std::cout << name << " removed from the game" << std::endl;
 }
 
 void Game::start() noexcept {
@@ -130,18 +132,12 @@ void Game::do_frame() noexcept {
         return;
     }
 
-    bool did_something = false;
     for (player_no_t i = 0; i < snakes.size(); i++) {
         Snake *snake = snakes[i].get();
         if (!snake->is_alive() || !snake->move(game_options.turning_speed)) {
             continue;
         }
-        did_something = true;
         listener->on_event(place_snake(snake, i));
-    }
-
-    if (!did_something) {
-        std::cout << "Did nothing" << std::endl;
     }
 }
 

@@ -34,6 +34,7 @@ namespace sikserver {
 
         /// Clients connected
         std::unique_ptr<Connections> connections;
+        std::mutex connections_mutex;
         /// Message sender
         std::unique_ptr<network::Sender> sender;
         /// Message receiver
@@ -76,7 +77,6 @@ namespace sikserver {
          * Stops server.
          */
         void stop() noexcept;
-
 
         /**
          * Implements IEventListener interface.

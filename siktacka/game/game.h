@@ -5,6 +5,7 @@
 #include <memory>
 #include <map>
 #include <thread>
+#include <mutex>
 #include "../types.h"
 #include "random.h"
 #include "snake.h"
@@ -44,6 +45,7 @@ namespace siktacka {
 
         std::unique_ptr<Board> board;
         std::map<std::string, Player> players;
+        std::mutex players_mutex;
         std::uint8_t players_ready_count;
         std::vector<std::unique_ptr<Snake>> snakes;
         std::size_t snakes_alive_count;
