@@ -73,6 +73,10 @@ namespace sikserver {
         void on_disconnect(const std::string &name) override;
 
     private:
+        /**
+         * Opens new UDP socket and saves it to the sock.
+         * @throws ServerException when opening socket fails.*/
+        void open_socket();
 
         /**
          * Binds socket to the given port.

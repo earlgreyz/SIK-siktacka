@@ -11,6 +11,7 @@ Server::Server(network::port_t port,
         : Server::Server(port, siktacka::GameOptions(game_options)) {}
 
 Server::Server(network::port_t port, siktacka::GameOptions &&game_options) {
+    open_socket();
     bind_socket(port);
 
     try {
@@ -35,38 +36,20 @@ Server::~Server() {
     }
 }
 
-void Server::bind_socket(network::port_t port) {
-    addrinfo hints;
-    addrinfo *result;
-    addrinfo *rp;
-
-    std::string port_buffer = boost::lexical_cast<std::string>(port);
-
-    memset(&hints, 0, sizeof(hints));
-    hints.ai_family = AF_UNSPEC;
-    hints.ai_socktype = SOCK_DGRAM;
-    hints.ai_protocol = IPPROTO_UDP;
-
-    if (getaddrinfo(nullptr, port_buffer.c_str(), &hints, &result) != 0) {
-        throw std::invalid_argument("Error setting server_address");
-    }
-
-    if ((sock = socket(rp->ai_family, SOCK_DGRAM | O_NONBLOCK, IPPROTO_UDP))
-                < 0) {
+void Server::open_socket() {
+    if ((sock = socket(AF_INET6, SOCK_DGRAM, IPPROTO_UDP)) < 0) {
         throw std::runtime_error("Error creating socket");
     }
+}
 
-    for (rp = result; rp != nullptr; rp = rp->ai_next) {
-        if (bind(sock, rp->ai_addr, rp->ai_addrlen) == 0) {
-            break;
-        }
+void Server::bind_socket(network::port_t port) {
+    sockaddr_in6 serveraddr;
+    memset(&serveraddr, 0, sizeof(serveraddr));
+    serveraddr.sin6_family = AF_INET6;
+    serveraddr.sin6_port   = htons(port);
+    if (bind(sock, (struct sockaddr *)&serveraddr, sizeof(serveraddr)) < 0) {
+        throw std::invalid_argument("Error binding to address");
     }
-
-    if (rp == nullptr) {
-        throw std::runtime_error("Could not bind to address");
-    }
-
-    freeaddrinfo(result);
 }
 
 void Server::run() {
@@ -141,8 +124,8 @@ void Server::receive_message() {
 
     try {
         message = std::make_shared<siktacka::ClientMessage>(buffer);
-    } catch (const std::invalid_argument &) {
-        std::cerr << "Invalid message received" << std::endl;
+    } catch (const std::invalid_argument &e) {
+        std::cerr << "Invalid message received: " << e.what() << std::endl;
         return;
     }
 
