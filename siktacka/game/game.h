@@ -10,8 +10,6 @@
 #include "random.h"
 #include "snake.h"
 #include "board.h"
-#include "events.h"
-#include "events/event_new_game.h"
 #include "i_event_listener.h"
 
 namespace siktacka {
@@ -37,21 +35,35 @@ namespace siktacka {
 
     class Game {
     private:
+        /// Game options
         GameOptions game_options;
+        /// Game id
         game_t game_id;
+        /// Is game running
         bool running;
 
+        /// Pseudo number random generator
         std::unique_ptr<Random> random;
 
+        /// Game board
         std::unique_ptr<Board> board;
+        /// Players connected to the game
         std::map<std::string, Player> players;
+        /// Mutex on players map
         std::mutex players_mutex;
+        /// Players ready to start the game
         std::uint8_t players_ready_count;
+        /// Snakes in the game
         std::vector<std::unique_ptr<Snake>> snakes;
+        /// Alive snakes count
         std::size_t snakes_alive_count;
+
+        /// Event listener instance
         IEventListener *listener;
+        /// Next generated event number
         event_no_t event_no;
 
+        /// Main game loop thread
         std::thread game_thread;
 
     public:
@@ -59,13 +71,13 @@ namespace siktacka {
          * Constructs new game with given options.
          * @param game_options game options.
          */
-        Game(const GameOptions &game_options, IEventListener *server) noexcept;
+        Game(const GameOptions &game_options, IEventListener *listener) noexcept;
 
         /**
          * Constructs new game with given options.
          * @param game_options game options.
          */
-        Game(GameOptions &&game_options, IEventListener *server) noexcept;
+        Game(GameOptions &&game_options, IEventListener *listener) noexcept;
 
         ~Game();
 
@@ -119,6 +131,11 @@ namespace siktacka {
          * Starts the game round if all players are ready.
          */
         void start() noexcept;
+
+        /**
+         * Game thread.
+         */
+        void game_loop();
 
         /**
          * Performs single game loop iteration.

@@ -5,15 +5,16 @@
 #include <netinet/in.h>
 #include <mutex>
 #include "../../network/types.h"
-#include "../game/game.h"
-#include "../protocol/client/message.h"
 #include "../../network/socket.h"
 #include "../../network/poll.h"
 #include "../../network/sender.h"
 #include "../../network/receiver.h"
+#include "../game/game.h"
+#include "../protocol/client/message.h"
 #include "i_connection_listener.h"
 #include "connections.h"
 #include "buffer.h"
+#include "events.h"
 
 namespace sikserver {
     const network::port_t SERVER_DEFAULT_PORT = 12345u;
@@ -28,7 +29,7 @@ namespace sikserver {
         std::unique_ptr<network::Poll<1>> poll;
 
         /// Game events
-        std::unique_ptr<siktacka::Events> events;
+        std::unique_ptr<Events> events;
         /// The actual game server
         std::unique_ptr<siktacka::Game> game;
 

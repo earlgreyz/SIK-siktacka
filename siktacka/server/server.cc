@@ -21,7 +21,7 @@ Server::Server(network::port_t port, siktacka::GameOptions &&game_options) {
     sender = std::make_unique<network::Sender>(socket->get_descriptor());
     receiver = std::make_unique<network::Receiver>(socket->get_descriptor());
 
-    events = std::make_unique<siktacka::Events>();
+    events = std::make_unique<Events>();
     game = std::make_unique<siktacka::Game>(game_options, this);
     connections = std::make_unique<Connections>(this);
     messages = std::make_unique<Buffer>();
@@ -53,6 +53,12 @@ void Server::stop() noexcept {
 }
 
 void Server::on_event(std::shared_ptr<siktacka::Event> event) {
+    if (event->get_event_type() == siktacka::event_t::GAME_OVER) {
+        events->clear();
+    } else {
+        events->add_event(event);
+    }
+
     connection_t now = std::chrono::high_resolution_clock::now();
     std::queue<sockaddr_storage> clients;
     siktacka::ServerMessage message(game->get_id());

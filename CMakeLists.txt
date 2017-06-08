@@ -40,7 +40,7 @@ set(SERVER_SOURCE_FILES
         siktacka/game/snake.cc siktacka/game/snake.h
         siktacka/game/board.cc siktacka/game/board.h
         siktacka/game/i_event_listener.h
-        siktacka/game/events.cc siktacka/game/events.h
+        siktacka/server/events.cc siktacka/server/events.h
         siktacka/server/i_connection_listener.h
         siktacka/server/connections.cc siktacka/server/connections.h
         siktacka/server/buffer.cc siktacka/server/buffer.h network/socket.cc network/socket.h)

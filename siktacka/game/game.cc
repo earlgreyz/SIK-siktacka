@@ -1,21 +1,23 @@
 #include "game.h"
+#include "events/event_new_game.h"
 #include "events/event_player_eliminated.h"
 #include "events/event_pixel.h"
 #include "events/event_game_over.h"
 #include <algorithm>
+#include <queue>
 
 using namespace siktacka;
 
 
 Game::Game(const siktacka::GameOptions &game_options,
-           IEventListener *server) noexcept
-        : Game(GameOptions(game_options), server) {
+           IEventListener *listener) noexcept
+        : Game(GameOptions(game_options), listener) {
 
 }
 
 Game::Game(siktacka::GameOptions &&game_options,
-           IEventListener *server) noexcept
-        : game_options(game_options), listener(server) {
+           IEventListener *listener) noexcept
+        : game_options(game_options), listener(listener) {
     running = false;
     random = std::make_unique<Random>(game_options.seed);
     board = std::make_unique<Board>(game_options.width, game_options.height);
@@ -26,6 +28,7 @@ void Game::initialize() {
     game_id = random->next();
     players_ready_count = 0u;
     event_no = 1u;
+
     for (auto &player: players) {
         player.second.ready = false;
         player.second.in_game = false;
@@ -42,7 +45,6 @@ void Game::add_player(const std::string &name) {
     if (players.count(name)) {
         throw std::invalid_argument("Player already in game");
     }
-
     players.insert(std::make_pair(name, Player()));
 }
 
@@ -87,7 +89,7 @@ void Game::remove_player(const std::string &name) noexcept {
     if (!running) {
         start();
     }
-    std::cout << name << " removed from the game" << std::endl;
+    std::cout << "Player `" << name << "` removed from the game" << std::endl;
 }
 
 void Game::start() noexcept {
@@ -98,24 +100,7 @@ void Game::start() noexcept {
 
     new_game();
     game_thread = std::thread([&]() {
-        using std::chrono::microseconds;
-        using std::chrono::duration_cast;
-        using std::chrono::high_resolution_clock;
-
-        microseconds round_time(1000000 / game_options.rounds_per_sec);
-        microseconds sleep_time(0);
-        while (running) {
-            auto start = high_resolution_clock::now();
-            do_frame();
-            auto end = high_resolution_clock::now();
-            sleep_time += round_time;
-            sleep_time -= duration_cast<microseconds>(end - start);
-            if (sleep_time > microseconds(0)) {
-                std::this_thread::sleep_for(sleep_time);
-                sleep_time = microseconds(0);
-            }
-        }
-        std::cout << "Game finished" << std::endl;
+        game_loop();
     });
     game_thread.detach();
 }
@@ -149,7 +134,6 @@ void Game::new_game() noexcept {
     snakes.clear();
 
     std::queue<std::unique_ptr<Event>> events;
-
     std::unique_ptr<EventNewGame> event_new_game =
             std::make_unique<EventNewGame>(
                     game_options.width, game_options.height, 0u);
@@ -207,4 +191,26 @@ Game::place_snake(Snake *snake, player_no_t player_no) noexcept {
 
 Game::~Game() {
     running = false;
+}
+
+void Game::game_loop() {
+    using std::chrono::microseconds;
+    using std::chrono::duration_cast;
+    using std::chrono::high_resolution_clock;
+
+    microseconds round_time(1000000 / game_options.rounds_per_sec);
+    microseconds sleep_time(0);
+    while (running) {
+        auto start = high_resolution_clock::now();
+        do_frame();
+        auto end = high_resolution_clock::now();
+        sleep_time += round_time;
+        sleep_time -= duration_cast<microseconds>(end - start);
+        if (sleep_time > microseconds(0)) {
+            std::this_thread::sleep_for(sleep_time);
+            sleep_time = microseconds(0);
+        }
+    }
+
+    std::cout << "Game finished" << std::endl;
 }
