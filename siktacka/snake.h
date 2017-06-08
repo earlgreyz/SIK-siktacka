@@ -2,7 +2,7 @@
 #define SIK_SIKTACKA_PLAYER_H
 
 
-#include "../types.h"
+#include "types.h"
 
 namespace siktacka {
     using coordinate_x = double;

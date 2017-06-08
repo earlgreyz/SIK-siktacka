@@ -8,12 +8,13 @@
 #include <list>
 #include <mutex>
 #include <thread>
-#include "../../network/sender.h"
-#include "../../network/receiver.h"
-#include "../../network/poll.h"
-#include "../protocol/client/message.h"
-#include "../game/events/event.h"
+#include "../network/sender.h"
+#include "../network/receiver.h"
+#include "../network/poll.h"
+#include "../siktacka/protocol/client/message.h"
+#include "../siktacka/events/event.h"
 #include "gui_client.h"
+#include "../siktacka/events/event_new_game.h"
 
 namespace sikclient {
     class Client {
@@ -59,8 +60,14 @@ namespace sikclient {
 
         ~Client();
 
+        /**
+         * Starts client main loop.
+         */
         void run();
 
+        /**
+         * Stops client main loop.
+         */
         void stop() noexcept;
 
     private:
@@ -98,9 +105,15 @@ namespace sikclient {
          */
         void send_message();
 
+        /**
+         * Sends event to GUI server.
+         */
         void send_event();
 
-        void initialize_players(siktacka::Event *);
+        /**
+         * Initializes players table based on the new game event.
+         */
+        void initialize_players(siktacka::EventNewGame *event);
     };
 }
 

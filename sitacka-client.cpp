@@ -1,8 +1,8 @@
 #include <iostream>
 #include <memory>
 #include <csignal>
-#include "siktacka/client/client.h"
-#include "siktacka/client/parser.h"
+#include "client/client.h"
+#include "client/parser.h"
 
 
 namespace {

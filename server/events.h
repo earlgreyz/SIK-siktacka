@@ -5,7 +5,7 @@
 #include <memory>
 #include <vector>
 #include <queue>
-#include "../game/events/event.h"
+#include "../siktacka/events/event.h"
 
 namespace sikserver {
     class Events {

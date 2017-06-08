@@ -7,8 +7,8 @@
 #include <arpa/inet.h>
 #include <boost/lexical_cast.hpp>
 #include "client.h"
-#include "../protocol/server/message.h"
-#include "../game/events/event_new_game.h"
+#include "../siktacka/protocol/server/message.h"
+#include "../siktacka/events/event_new_game.h"
 
 using namespace sikclient;
 
@@ -43,7 +43,7 @@ Client::~Client() {
 
 
 void Client::open_sockets() {
-        if ((gui_sock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0) {
+    if ((gui_sock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0) {
         throw std::runtime_error("Error opening gui socket");
     }
 }
@@ -82,7 +82,7 @@ void Client::run() {
         while (!stopping) {
             auto start = high_resolution_clock::now();
             add_server_message();
-            auto end = high_resolution_clock ::now();
+            auto end = high_resolution_clock::now();
             sleep_time += round_time;
             sleep_time -= duration_cast<milliseconds>(end - start);
             if (sleep_time > milliseconds(0)) {
@@ -98,7 +98,7 @@ void Client::run() {
             poll->wait(40);
         } catch (const network::poll_timeout &) {
             continue;
-        } catch (const std::runtime_error) {
+        } catch (const network::poll_error &) {
             continue;
         }
 
@@ -159,7 +159,8 @@ void Client::receive_message() {
             if (event->get_event_type() == siktacka::event_t::GAME_OVER) {
                 continue;
             } else if (event->get_event_type() == siktacka::event_t::NEW_GAME) {
-                initialize_players(event.get());
+                initialize_players(
+                        reinterpret_cast<siktacka::EventNewGame *>(event.get()));
             }
 
             event_no++;
@@ -200,12 +201,14 @@ void Client::send_event() {
     }
 }
 
-void Client::initialize_players(siktacka::Event *event) {
-    siktacka::EventNewGame *new_game =
-            reinterpret_cast<siktacka::EventNewGame *>(event);
+void Client::initialize_players(siktacka::EventNewGame *event) {
+    if (event->get_event_type() != siktacka::event_t::NEW_GAME) {
+        throw std::invalid_argument("Players can be initialized only from"
+                                            "NEW_GAME event");
+    }
 
     players.clear();
-    for (const std::string &player: *new_game) {
+    for (const std::string &player: *event) {
         players.push_back(player);
     }
 }

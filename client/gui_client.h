@@ -2,8 +2,8 @@
 #define SIK_SIKTACKA_GUI_CLIENT_H
 
 
-#include "../../network/types.h"
-#include "../game/events/event.h"
+#include "../network/types.h"
+#include "../siktacka/events/event.h"
 
 namespace sikclient {
     class GuiClient {

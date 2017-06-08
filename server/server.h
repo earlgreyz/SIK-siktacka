@@ -4,13 +4,13 @@
 
 #include <netinet/in.h>
 #include <mutex>
-#include "../../network/types.h"
-#include "../../network/socket.h"
-#include "../../network/poll.h"
-#include "../../network/sender.h"
-#include "../../network/receiver.h"
-#include "../game/game.h"
-#include "../protocol/client/message.h"
+#include "../network/types.h"
+#include "../network/socket.h"
+#include "../network/poll.h"
+#include "../network/sender.h"
+#include "../network/receiver.h"
+#include "../siktacka/game.h"
+#include "../siktacka/protocol/client/message.h"
 #include "i_connection_listener.h"
 #include "connections.h"
 #include "buffer.h"

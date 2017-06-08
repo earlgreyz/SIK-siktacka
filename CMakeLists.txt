@@ -16,7 +16,8 @@ endif()
 set(SOURCE_FILES
         error.h
         network/constants.h
-        network/poll.h network/types.h
+        network/poll.h
+        network/types.h
         siktacka/types.h
         network/sender.cc network/sender.h
         network/receiver.cc network/receiver.h
@@ -26,29 +27,29 @@ set(SOURCE_FILES
         siktacka/protocol/server/constants.h
         siktacka/protocol/server/message.cc siktacka/protocol/server/message.h
 
-        siktacka/game/events/event.cc siktacka/game/events/event.h
-        siktacka/game/events/event_new_game.cc siktacka/game/events/event_new_game.h
-        siktacka/game/events/event_pixel.cc siktacka/game/events/event_pixel.h
-        siktacka/game/events/event_game_over.cc siktacka/game/events/event_game_over.h
-        siktacka/game/events/event_player_eliminated.cc siktacka/game/events/event_player_eliminated.h
-        siktacka/game/events/event_factory.cc siktacka/game/events/event_factory.h)
+        siktacka/events/event.cc siktacka/events/event.h
+        siktacka/events/event_new_game.cc siktacka/events/event_new_game.h
+        siktacka/events/event_pixel.cc siktacka/events/event_pixel.h
+        siktacka/events/event_game_over.cc siktacka/events/event_game_over.h
+        siktacka/events/event_player_eliminated.cc siktacka/events/event_player_eliminated.h
+        siktacka/events/event_factory.cc siktacka/events/event_factory.h)
 
 set(SERVER_SOURCE_FILES
-        siktacka/server/server.cc siktacka/server/server.h
-        siktacka/game/random.cc siktacka/game/random.h
-        siktacka/game/game.cc siktacka/game/game.h
-        siktacka/game/snake.cc siktacka/game/snake.h
-        siktacka/game/board.cc siktacka/game/board.h
-        siktacka/game/i_event_listener.h
-        siktacka/server/events.cc siktacka/server/events.h
-        siktacka/server/i_connection_listener.h
-        siktacka/server/connections.cc siktacka/server/connections.h
-        siktacka/server/buffer.cc siktacka/server/buffer.h network/socket.cc network/socket.h)
+        server/server.cc server/server.h
+        siktacka/random.cc siktacka/random.h
+        siktacka/game.cc siktacka/game.h
+        siktacka/snake.cc siktacka/snake.h
+        siktacka/board.cc siktacka/board.h
+        siktacka/i_event_listener.h
+        server/events.cc server/events.h
+        server/i_connection_listener.h
+        server/connections.cc server/connections.h
+        server/buffer.cc server/buffer.h network/socket.cc network/socket.h)
 
 set(CLIENT_SOURCE_FILES
-        siktacka/client/client.h siktacka/client/client.cc
-        siktacka/client/gui_client.cc siktacka/client/gui_client.h
-        siktacka/client/parser.cc siktacka/client/parser.h)
+        client/client.h client/client.cc
+        client/gui_client.cc client/gui_client.h
+        client/parser.cc client/parser.h)
 
 set(TESTS_SOURCE_FILES tests/test_event.cc tests/test_message.cc)
 

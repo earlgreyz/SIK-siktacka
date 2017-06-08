@@ -5,7 +5,7 @@
 #include <boost/program_options.hpp>
 
 #include "error.h"
-#include "siktacka/server/server.h"
+#include "server/server.h"
 
 
 namespace {

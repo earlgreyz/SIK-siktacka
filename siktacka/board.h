@@ -3,7 +3,7 @@
 
 
 #include <vector>
-#include "../types.h"
+#include "types.h"
 
 namespace siktacka {
     class Board {

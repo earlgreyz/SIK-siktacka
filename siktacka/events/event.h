@@ -3,9 +3,9 @@
 
 #include <iostream>
 #include <vector>
-#include "../../protocol/server/constants.h"
-#include "../../types.h"
-#include "../../../network/types.h"
+#include "../protocol/server/constants.h"
+#include "../types.h"
+#include "../../network/types.h"
 
 
 namespace siktacka {

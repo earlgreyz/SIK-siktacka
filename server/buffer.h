@@ -4,7 +4,7 @@
 
 #include <netinet/in.h>
 #include <queue>
-#include "../../network/types.h"
+#include "../network/types.h"
 
 namespace sikserver {
     class Buffer {
