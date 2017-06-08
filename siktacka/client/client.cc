@@ -91,6 +91,7 @@ void Client::run() {
             }
         }
     });
+    client_thread.detach();
 
     while (!stopping) {
         try {
@@ -125,7 +126,6 @@ void Client::run() {
 
 void Client::stop() noexcept {
     stopping = true;
-    client_thread.join();
 }
 
 void Client::make_session_id() noexcept {
