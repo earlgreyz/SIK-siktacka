@@ -44,6 +44,12 @@ namespace siktacka {
          */
         network::buffer_t to_bytes() const noexcept;
 
+        /**
+         * Returns game_id provided in message.
+         * @return game_id.
+         */
+        game_t get_game_id() const noexcept;
+
         std::vector<std::shared_ptr<Event>>::iterator begin();
 
         std::vector<std::shared_ptr<Event>>::iterator end();

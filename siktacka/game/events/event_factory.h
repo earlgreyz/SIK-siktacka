@@ -15,7 +15,7 @@ namespace siktacka {
     public:
         unknown_event(std::size_t length) noexcept : length(length) {}
 
-        std::size_t get_length() const noexcept {
+        std::size_t get_len() const noexcept {
             return length;
         }
     };

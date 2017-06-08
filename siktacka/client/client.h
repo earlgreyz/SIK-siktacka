@@ -27,6 +27,7 @@ namespace sikclient {
         bool stopping = false;
 
         // Game message variables
+        siktacka::game_t game_id;
         std::string name;
         siktacka::session_t session;
         siktacka::event_no_t event_no;

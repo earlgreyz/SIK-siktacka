@@ -42,10 +42,15 @@ ServerMessage::ServerMessage(const network::buffer_t &bytes) {
             break;
         } catch (const unknown_event &e) {
             std::cerr << "Unknown event" << std::endl;
-            off += e.get_length();
+            off += e.get_len();
         }
     }
 }
+
+game_t ServerMessage::get_game_id() const noexcept {
+    return game_id;
+}
+
 
 std::vector<std::shared_ptr<Event>>::iterator ServerMessage::begin() {
     return events.begin();
