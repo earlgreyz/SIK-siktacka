@@ -53,8 +53,8 @@ set(CLIENT_SOURCE_FILES
 
 set(TESTS_SOURCE_FILES tests/test_event.cc tests/test_message.cc)
 
-add_executable(client sitacka-client.cpp ${SOURCE_FILES} ${CLIENT_SOURCE_FILES})
-add_executable(server sitacka-server.cpp ${SOURCE_FILES} ${SERVER_SOURCE_FILES})
+add_executable(client siktacka-client.cc ${SOURCE_FILES} ${CLIENT_SOURCE_FILES})
+add_executable(server siktacka-server.cc ${SOURCE_FILES} ${SERVER_SOURCE_FILES})
 add_executable(tests tests/tests.cc ${SOURCE_FILES} ${TESTS_SOURCE_FILES})
 
 TARGET_LINK_LIBRARIES(client ${Boost_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})

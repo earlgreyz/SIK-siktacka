@@ -4,11 +4,9 @@
 #include <iostream>
 #include <fcntl.h>
 #include <chrono>
-#include <arpa/inet.h>
 #include <boost/lexical_cast.hpp>
 #include "client.h"
 #include "../siktacka/protocol/server/message.h"
-#include "../siktacka/events/event_new_game.h"
 
 using namespace sikclient;
 
