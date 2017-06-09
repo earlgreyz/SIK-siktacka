@@ -5,8 +5,7 @@
 using namespace siktacka;
 
 Snake::Snake(coordinate_x x, coordinate_x y, angle_t angle) noexcept
-        : x(x), y(y), angle(angle), alive(true) {
-
+        : x(x), y(y), angle(angle), direction(direction_t::NONE), alive(true) {
 }
 
 pixel_t Snake::get_x() const noexcept {
