@@ -36,7 +36,6 @@ void GuiClient::connect_to_gui(const std::string &host, network::port_t port) {
 }
 
 void GuiClient::send_event(const std::string &event) {
-    std::cout << "Sending => " << event << "=> ENDS_HERE\n";
     if (send(sock, event.data(), event.length(), 0) < 0) {
         throw std::runtime_error("GUI Disconnected");
     }

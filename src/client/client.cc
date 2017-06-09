@@ -27,6 +27,7 @@ Client::Client(const std::string &name, const std::string &host,
     poll->add_descriptor(gui_sock, POLLIN);
 
     event_no = 0u;
+    game_id = 0u;
 }
 
 Client::~Client() {
@@ -37,6 +38,8 @@ Client::~Client() {
     if (close(gui_sock) != 0) {
         std::cerr << "Error closing socket" << std::endl;
     }
+
+    client_thread.join();
 }
 
 
@@ -89,7 +92,6 @@ void Client::run() {
             }
         }
     });
-    client_thread.detach();
 
     while (!stopping) {
         try {
@@ -113,7 +115,12 @@ void Client::run() {
         }
 
         if ((*poll)[gui_sock].revents & POLLIN) {
-            gui_client->receive_event();
+            try {
+                gui_client->receive_event();
+            } catch (const std::runtime_error &e) {
+                stopping = true;
+                throw std::runtime_error(e);
+            }
         }
 
         if ((*poll)[gui_sock].revents & POLLOUT) {
@@ -193,8 +200,11 @@ void Client::send_event() {
         try {
             gui_client->send_event(events.front());
             events.pop();
-        } catch (network::would_block_error &) {
+        } catch (const network::would_block_error &) {
             return;
+        } catch (const std::runtime_error &e) {
+            stopping = true;
+            throw std::runtime_error(e);
         }
     }
 }
