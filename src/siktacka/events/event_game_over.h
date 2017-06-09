@@ -20,6 +20,13 @@ namespace siktacka {
          */
         EventGameOver(event_no_t event_no) noexcept;
 
+        /**
+         * Constructs new GAME_OVER events from bytes.
+         * @param event_no event number.
+         * @param length size of buffer.
+         * @throws std::invalid_argument if buffer doesn't describe proper
+         * GAME_OVER event
+         */
         EventGameOver(event_no_t event_no, std::size_t length);
 
         /**

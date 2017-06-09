@@ -13,9 +13,13 @@ namespace siktacka {
 
     class ClientMessage {
     private:
+        /// Client session id
         session_t session_id;
+        /// Client turn direction
         direction_t turn_direction;
+        /// Client next expected event number
         event_no_t next_event;
+        /// Client name
         std::string player_name;
 
     public:
@@ -61,12 +65,24 @@ namespace siktacka {
          */
         network::buffer_t to_bytes() const noexcept;
 
+        /**
+         * @return session.
+         */
         session_t get_session() const noexcept;
 
+        /**
+         * @return turn_direction.
+         */
         direction_t get_turn_direction() const noexcept;
 
+        /**
+         * @return next expected event number.
+         */
         event_no_t get_next_event_no() const noexcept;
 
+        /**
+         * @return player name.
+         */
         const std::string &get_player_name() const noexcept;
 
     private:

@@ -74,7 +74,7 @@ int main(int argc, char *argv[]) {
         parse_arguments(argc, argv);
     } catch (const std::invalid_argument &e) {
         usage(argv[0], e.what());
-        return 1;
+        return RETURN_ERROR;
     }
 
     try {
@@ -84,7 +84,7 @@ int main(int argc, char *argv[]) {
         client->run();
     } catch (const std::exception &e) {
         std::cerr << "Client stopped with message: " << e.what() << std::endl;
-        return 1;
+        return RETURN_ERROR;
     }
-    return 0;
+    return RETURN_OK;
 }

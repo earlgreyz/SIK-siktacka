@@ -28,6 +28,10 @@ namespace siktacka {
          */
         ServerMessage(game_t game_id) noexcept;
 
+        /**
+         * Constructs server message from bytes.
+         * @param bytes buffer.
+         */
         ServerMessage(const network::buffer_t &bytes);
 
         /**

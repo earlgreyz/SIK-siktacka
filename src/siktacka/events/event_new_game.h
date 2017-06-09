@@ -39,6 +39,12 @@ namespace siktacka {
         EventNewGame(pixel_t max_x, pixel_t max_y,
                      event_no_t event_no) noexcept;
 
+        /**
+         * Constructs new NEW_GAME event from buffer.
+         * @param event_no event number.
+         * @param data buffer in protocol format.
+         * @param length buffer length.
+         */
         EventNewGame(event_no_t event_no, const char *data, std::size_t length);
 
         /**
@@ -54,6 +60,8 @@ namespace siktacka {
          * @throws std::overflow_error if adding the player would exceed
          * maximum event bytes length.
          * @param player player name.
+         * @throws std::invalid_argument if buffer doesn't describe proper
+         * NEW_GAME event
          */
         void add_player(std::string &&player);
 

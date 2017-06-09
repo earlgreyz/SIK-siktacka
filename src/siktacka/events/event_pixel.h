@@ -25,7 +25,7 @@ namespace siktacka {
 
     public:
         /**
-         * Constructs new event pixel.
+         * Constructs new event PIXEL.
          * @param event_no event ordinal.
          * @param player_no player number.
          * @param position player coordinates.
@@ -33,6 +33,14 @@ namespace siktacka {
         EventPixel(event_no_t event_no, player_no_t player_no,
                    position_t position) noexcept;
 
+        /**
+         * Constructs new event PIXEL from bytes.
+         * @param event_no event number.
+         * @param data buffer in protocol format.
+         * @param length buffer size.
+         * @throws std::invalid_argument if buffer doesn't describe proper
+         * PIXEL event
+         */
         EventPixel(event_no_t event_no, const char *data,
                    std::size_t length);
 

@@ -27,9 +27,21 @@ namespace siktacka {
         EventPlayerEliminated(event_no_t event_no,
                               player_no_t player_no) noexcept;
 
+        /**
+         * Constructs new PLAYER_ELIMINATED event from bytes.
+         * @param event_no event number.
+         * @param data buffer with protocol format.
+         * @param length buffer size.
+         * @throws std::invalid_argument if buffer doesn't describe proper
+         * PLAYER_ELIMINATED event
+         */
         EventPlayerEliminated(event_no_t event_no, const char *data,
                               std::size_t length);
 
+        /**
+         * Calculates length of event bytes format.
+         * @return event length.
+         */
         std::size_t get_len() const noexcept override;
 
         /**

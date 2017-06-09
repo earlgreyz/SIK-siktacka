@@ -14,14 +14,13 @@ namespace {
 
 Connections::Client::Client(sockaddr_storage address,
                             siktacka::session_t session, std::string name,
-                            sikserver::connection_t timestamp) : address(
-        address), session(session), name(name), timestamp(timestamp) {
-
+                            sikserver::connection_t timestamp)
+        : address(address), session(session), name(name), timestamp(timestamp) {
 }
 
 bool sikserver::Connections::Client::is_active(
         sikserver::connection_t time_point) const noexcept {
-    return time_point - timestamp < std::chrono::seconds(2);
+    return time_point - timestamp < TIMEOUT;
 }
 
 Connections::Connections(IConnectionListener *listener) noexcept: listener(

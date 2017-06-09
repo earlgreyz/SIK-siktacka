@@ -8,8 +8,11 @@
 namespace siktacka {
     class Board {
     private:
+        /// Board fields
         std::vector<std::vector<bool>> fields;
+        /// Board width
         pixel_t width;
+        /// Board height
         pixel_t height;
     public:
         /**
