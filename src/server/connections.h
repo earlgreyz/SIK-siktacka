@@ -95,7 +95,6 @@ namespace sikserver {
         std::queue<sockaddr_storage>
         get_connected_clients(connection_t now) noexcept;
 
-    private:
         /**
          * Removes inactive clients from clients list.
          * @param now current time_point.

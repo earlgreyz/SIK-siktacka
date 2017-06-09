@@ -31,10 +31,14 @@ void Server::run() {
     stopping = false;
     while (!stopping) {
         try {
-            poll->wait(-1);
+            poll->wait(2000);
+        } catch (const network::poll_timeout &) {
+            connection_t now = std::chrono::high_resolution_clock::now();
+            connections->cleanup_inactive(now);
         } catch (const network::poll_error &) {
             continue;
         }
+
         if (stopping) {
             return;
         }
