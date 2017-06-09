@@ -7,12 +7,6 @@
 
 namespace sikclient {
 
-    class gui_error : std::exception {
-        const char* what() const noexcept override {
-            return "GUI Connection error";
-        }
-    };
-
     class GuiClient {
     private:
         /// GUI Server TCP socket

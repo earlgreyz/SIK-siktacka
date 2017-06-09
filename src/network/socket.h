@@ -6,11 +6,6 @@
 #include "types.h"
 
 namespace network {
-    class socket_error : std::exception {
-    };
-
-    class bind_error : std::exception {
-    };
 
     class Socket {
     private:

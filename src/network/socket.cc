@@ -9,7 +9,7 @@ using namespace network;
 
 Socket::Socket(int domain, int type, int protocol) {
     if ((socket_descriptor = socket(domain, type, protocol)) < 0) {
-        throw socket_error();
+        throw std::runtime_error("Error creating socket");
     }
 }
 
@@ -25,7 +25,7 @@ int Socket::get_descriptor() const noexcept {
 
 void Socket::bind_address(sockaddr *address, socklen_t address_len) const {
     if (bind(socket_descriptor, address, address_len) < 0) {
-        throw bind_error();
+        throw std::runtime_error("Error binding to socket");
     }
 }
 

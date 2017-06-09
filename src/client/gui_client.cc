@@ -28,14 +28,14 @@ void GuiClient::connect_to_gui(const std::string &host, network::port_t port) {
     }
 
     if (connect(sock, result->ai_addr, result->ai_addrlen) != 0) {
-        throw gui_error();
+        throw std::runtime_error("GUI Connection error");
     }
     freeaddrinfo(result);
 }
 
 void GuiClient::send_event(const std::string &event) {
     if (send(sock, event.data(), event.length(), 0) < 0) {
-        throw gui_error();
+        throw std::runtime_error("GUI Connection error");
     }
 }
 
@@ -43,7 +43,7 @@ void GuiClient::receive_event() {
     network::buffer_t buffer(16u, 0);
     char *data = const_cast<char *>(buffer.data());
     if (read(sock, data, buffer.size() - 1) <= 0) {
-        throw gui_error();
+        throw std::runtime_error("GUI Connection error");
     }
 
     std::string action = buffer.data();
