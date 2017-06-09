@@ -26,14 +26,14 @@ namespace {
 }
 
 
-std::uint16_t Parser::parse_port(const std::string &input) {
+network::port_t Parser::parse_port(const std::string &input) {
     std::size_t colon = input.find_last_of(':');
     if (is_ipv6(input) || colon == std::string::npos) {
         throw std::out_of_range("Port not available in the input string");
     }
     std::string port = input.substr(colon + 1);
     try {
-        return positive_cast<std::uint16_t>(port);
+        return positive_cast<network::port_t>(port);
     } catch (const boost::bad_lexical_cast &) {
         throw std::invalid_argument("Port must be a positive 16bit integer");
     }
