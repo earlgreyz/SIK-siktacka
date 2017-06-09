@@ -1,5 +1,5 @@
-#ifndef SIK_SIKTACKA_CONSTANTS_H
-#define SIK_SIKTACKA_CONSTANTS_H
+#ifndef SIK_CONSTANTS_H
+#define SIK_CONSTANTS_H
 
 #include <cstddef>
 

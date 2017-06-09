@@ -13,7 +13,7 @@ buffer_t Receiver::receive_message(sockaddr_storage *address) {
     sockaddr *sender = reinterpret_cast<sockaddr *>(address);
     socklen_t socklen = sizeof(sockaddr_storage);
     buffer_t buffer(MAX_MESSAGE_LEN, '\0');
-    char * data = const_cast<char *>(buffer.data());
+    char *data = const_cast<char *>(buffer.data());
 
     ssize_t length;
     length = recvfrom(sock, data, buffer.size(), 0, sender, &socklen);

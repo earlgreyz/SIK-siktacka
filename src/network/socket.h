@@ -1,5 +1,5 @@
-#ifndef SIK_SIKTACKA_SOCKET_H
-#define SIK_SIKTACKA_SOCKET_H
+#ifndef SIK_SOCKET_H
+#define SIK_SOCKET_H
 
 
 #include <exception>

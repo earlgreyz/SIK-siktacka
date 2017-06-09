@@ -1,5 +1,5 @@
-#ifndef SIK_SIKTACKA_SENDER_H
-#define SIK_SIKTACKA_SENDER_H
+#ifndef SIK_SENDER_H
+#define SIK_SENDER_H
 
 
 #include <exception>
@@ -42,4 +42,4 @@ namespace network {
 }
 
 
-#endif //SIK_SIKTACKA_SENDER_H
+#endif

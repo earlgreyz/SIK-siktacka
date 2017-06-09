@@ -1,5 +1,5 @@
-#ifndef SIK_SIKTACKA_RECEIVER_H
-#define SIK_SIKTACKA_RECEIVER_H
+#ifndef SIK_RECEIVER_H
+#define SIK_RECEIVER_H
 
 #include <string>
 #include <netinet/in.h>
@@ -31,4 +31,4 @@ namespace network {
     };
 }
 
-#endif //SIK_UDP_SENDER_H
+#endif
