@@ -77,6 +77,10 @@ void Server::on_event(std::shared_ptr<siktacka::Event> event) {
 }
 
 void Server::on_disconnect(const std::string &name) {
+    if (name == "") {
+        std::cout << "Observer disconnected" << std::endl;
+        return;
+    }
     game->remove_player(name);
 }
 
@@ -173,15 +177,22 @@ void Server::on_action(std::shared_ptr<siktacka::ClientMessage> message,
         throw std::invalid_argument("Spoofing detected for player " + player);
     }
 
-    game->player_action(player, message->get_turn_direction());
+    if (player != "") {
+        game->player_action(player, message->get_turn_direction());
+    }
     make_message(address, message->get_next_event_no());
 }
 
 void Server::on_connect(std::shared_ptr<siktacka::ClientMessage> message,
                         sockaddr_storage address, connection_t now) noexcept {
     try {
-        game->add_player(message->get_player_name());
-        std::cout << message->get_player_name() << " connected" << std::endl;
+        if (message->get_player_name() != "") {
+            game->add_player(message->get_player_name());
+            std::cout << "Player `" << message->get_player_name()
+                      << "` connected" << std::endl;
+        } else {
+            std::cout << "Observer connected" << std::endl;
+        }
 
         siktacka::session_t session = message->get_session();
         std::string name = message->get_player_name();

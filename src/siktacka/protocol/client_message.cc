@@ -27,7 +27,7 @@ ClientMessage::ClientMessage(session_t session_id, direction_t turn_direction,
 }
 
 ClientMessage::ClientMessage(const network::buffer_t &bytes) {
-    if (bytes.length() < CLIENT_MESSAGE_HEADER_LEN + 1) {
+    if (bytes.length() < CLIENT_MESSAGE_HEADER_LEN) {
         throw std::invalid_argument("Unexpected end of message");
     }
 
@@ -43,7 +43,12 @@ ClientMessage::ClientMessage(const network::buffer_t &bytes) {
 
     next_event = be32toh(*reinterpret_cast<const event_no_t *>(data + off));
     off += sizeof(event_no_t);
-    player_name = std::string(data + off, bytes.size() - off);
+
+    if (bytes.length() > CLIENT_MESSAGE_HEADER_LEN) {
+        player_name = std::string(data + off, bytes.size() - off);
+    } else {
+        player_name = "";
+    }
 
     validate();
 }
