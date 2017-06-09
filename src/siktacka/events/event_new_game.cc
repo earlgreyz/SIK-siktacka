@@ -92,6 +92,14 @@ EventNewGame::EventNewGame(event_no_t event_no, const char *data,
     }
 }
 
+pixel_t EventNewGame::get_width() const noexcept {
+    return max_x;
+}
+
+pixel_t EventNewGame::get_height() const noexcept {
+    return max_y;
+}
+
 std::set<std::string>::const_iterator EventNewGame::begin() const noexcept {
     return players.begin();
 }
@@ -110,4 +118,12 @@ EventNewGame::to_string(
     }
     os << "\n";
     return os.str();
+}
+
+void EventNewGame::validate_in_game(
+        __attribute__((unused)) pixel_t width,
+        __attribute__((unused)) pixel_t height,
+        __attribute__((unused)) std::size_t players_count) const {
+    // Event new game is always valid as it provides the data to validate
+    return;
 }

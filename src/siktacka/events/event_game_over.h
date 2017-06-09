@@ -35,6 +35,16 @@ namespace siktacka {
          */
         std::string to_string(
                 const std::vector<std::string> &players) const noexcept override;
+
+        /**
+         * Validates if event is proper event in game with parameters:
+         * @param width board width.
+         * @param height board height.
+         * @param players_count player names.
+         * @throws std::invalid_argument if event has invalid data.
+         */
+        void validate_in_game(pixel_t width, pixel_t height,
+                              std::size_t players_count) const override;
     };
 }
 

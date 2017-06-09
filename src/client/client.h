@@ -43,16 +43,20 @@ namespace sikclient {
         /// Poll
         std::unique_ptr<network::Poll<2>> poll;
 
-        // Messages to send to server
+        /// Messages to send to server
         std::queue<std::unique_ptr<siktacka::ClientMessage>> messages;
         std::mutex messages_mutex;
 
         std::thread client_thread;
 
-        // Events received
+        /// Events received
         std::queue<std::string> events;
 
+        /// Players list
         std::vector<std::string> players;
+        /// Game params
+        siktacka::pixel_t width;
+        siktacka::pixel_t height;
     public:
         Client(const std::string &name,
                const std::string &host, network::port_t port,

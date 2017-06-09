@@ -42,3 +42,12 @@ std::string EventPlayerEliminated::to_string(
     os << "PLAYER_ELIMINATED " << players[player_no] << "\n";
     return os.str();
 }
+
+void EventPlayerEliminated::validate_in_game(
+        __attribute__((unused)) pixel_t width,
+        __attribute__((unused)) pixel_t height,
+        std::size_t players_count) const {
+    if (player_no >= players_count) {
+        throw std::invalid_argument("PLAYER_ELIMINATED for non existent user!");
+    }
+}

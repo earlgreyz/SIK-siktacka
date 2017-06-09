@@ -57,3 +57,14 @@ EventPixel::to_string(const std::vector<std::string> &players) const {
     os << "PIXEL " << x << " " << y << " " << players[player_no] << "\n";
     return os.str();
 }
+
+void EventPixel::validate_in_game(pixel_t width, pixel_t height,
+                                  std::size_t players_count) const {
+    if (x > width || y > height) {
+        throw std::invalid_argument("PIXEL has invalid coordinates!");
+    }
+
+    if (player_no >= players_count) {
+        throw std::invalid_argument("PIXEL for non existent user!");
+    }
+}

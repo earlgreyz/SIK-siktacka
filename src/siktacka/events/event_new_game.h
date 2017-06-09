@@ -71,6 +71,16 @@ namespace siktacka {
          */
         std::size_t get_len() const noexcept override;
 
+        /**
+         * @return event max_x
+         */
+        pixel_t get_width() const noexcept;
+
+        /**
+         * @return event max_y.
+         */
+        pixel_t get_height() const noexcept;
+
         std::set<std::string>::const_iterator begin() const noexcept;
 
         std::set<std::string>::const_iterator end() const noexcept;
@@ -83,6 +93,15 @@ namespace siktacka {
         std::string to_string(
                 const std::vector<std::string> &players) const noexcept override;
 
+        /**
+         * Validates if event is proper event in game with parameters:
+         * @param width board width.
+         * @param height board height.
+         * @param players_count player names.
+         * @throws std::invalid_argument if event has invalid data.
+         */
+        void validate_in_game(pixel_t width, pixel_t height,
+                              std::size_t players_count) const override;
     };
 }
 

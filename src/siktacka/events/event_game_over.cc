@@ -17,8 +17,16 @@ EventGameOver::EventGameOver(event_no_t event_no, size_t length)
     }
 }
 
-std::string
-EventGameOver::to_string(
-        const std::vector<std::string> &players) const noexcept {
-    return "GAME_OVER " + players.size();
+std::string EventGameOver::to_string(
+        __attribute__((unused)) const std::vector<std::string> &players)
+const noexcept {
+    return "GAME_OVER";
+}
+
+void EventGameOver::validate_in_game(
+        __attribute__((unused)) pixel_t width,
+        __attribute__((unused))pixel_t height,
+        __attribute__((unused)) std::size_t players_count) const {
+    // Game over is always valid as it has no data
+    return;
 }

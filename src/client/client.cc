@@ -28,6 +28,8 @@ Client::Client(const std::string &name, const std::string &host,
 
     event_no = 0u;
     game_id = 0u;
+    width = 0u;
+    height = 0u;
 }
 
 Client::~Client() {
@@ -167,6 +169,7 @@ void Client::receive_message() {
                 initialize_players(
                         reinterpret_cast<siktacka::EventNewGame *>(event.get()));
             }
+            event->validate_in_game(width, height, players.size());
 
             event_no++;
             events.push(event->to_string(players));
@@ -214,6 +217,8 @@ void Client::initialize_players(siktacka::EventNewGame *event) {
         throw std::invalid_argument("Players can be initialized only from"
                                             "NEW_GAME event");
     }
+    width = event->get_width();
+    height = event->get_height();
 
     players.clear();
     for (const std::string &player: *event) {
