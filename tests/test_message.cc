@@ -1,8 +1,8 @@
 #include "catch.hpp"
-#include "../siktacka/game/events/event.h"
-#include "../siktacka/game/events/event_new_game.h"
-#include "../siktacka/game/events/event_factory.h"
-#include "../siktacka/protocol/server/message.h"
+#include "../src/siktacka/events/event.h"
+#include "../src/siktacka/events/event_new_game.h"
+#include "../src/siktacka/events/event_factory.h"
+#include "../src/siktacka/protocol/server_message.h"
 
 using namespace siktacka;
 
@@ -34,8 +34,8 @@ TEST_CASE("Server Message from bytes constructor", "[Server Message]") {
     ServerMessage real_message(17);
     std::shared_ptr<EventNewGame> new_game =
             std::make_shared<EventNewGame>(42, 43, 44);
-    new_game->add_player("M");
-    new_game->add_player("W");
+    new_game->add_player("bot");
+    new_game->add_player("janusz");
     real_message.add_event(new_game);
 
     network::buffer_t buffer = real_message.to_bytes();

@@ -1,11 +1,11 @@
 #include <boost/crc.hpp>
 #include "catch.hpp"
-#include "../siktacka/game/events/event.h"
-#include "../siktacka/game/events/event_new_game.h"
-#include "../siktacka/game/events/event_game_over.h"
-#include "../siktacka/game/events/event_pixel.h"
-#include "../siktacka/game/events/event_player_eliminated.h"
-#include "../siktacka/game/events/event_factory.h"
+#include "../src/siktacka/events/event.h"
+#include "../src/siktacka/events/event_new_game.h"
+#include "../src/siktacka/events/event_game_over.h"
+#include "../src/siktacka/events/event_pixel.h"
+#include "../src/siktacka/events/event_player_eliminated.h"
+#include "../src/siktacka/events/event_factory.h"
 
 using namespace siktacka;
 
