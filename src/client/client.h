@@ -11,7 +11,7 @@
 #include "../network/sender.h"
 #include "../network/receiver.h"
 #include "../network/poll.h"
-#include "../siktacka/protocol/client/message.h"
+#include "../siktacka/protocol/client_message.h"
 #include "../siktacka/events/event.h"
 #include "gui_client.h"
 #include "../siktacka/events/event_new_game.h"

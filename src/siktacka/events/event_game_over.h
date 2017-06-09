@@ -20,8 +20,7 @@ namespace siktacka {
          */
         EventGameOver(event_no_t event_no) noexcept;
 
-        EventGameOver(event_no_t event_no, const char *data,
-                      std::size_t length);
+        EventGameOver(event_no_t event_no, std::size_t length);
 
         /**
          * Converts event to string.

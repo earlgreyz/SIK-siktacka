@@ -71,7 +71,7 @@ EventFactory::make(const network::buffer_t &buffer, std::size_t offset) const {
                     event_no, event_data, data_len);
         case event_t::GAME_OVER:
             return std::make_shared<EventGameOver>(
-                    event_no, event_data, data_len);
+                    event_no, data_len);
         default:
             throw unknown_event(
                     sizeof(event_len_t) + event_len + sizeof(crc32_t));

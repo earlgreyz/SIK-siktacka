@@ -1,8 +1,8 @@
 #ifndef SIK_SIKTACKA_CLIENT_MESSAGE_H
 #define SIK_SIKTACKA_CLIENT_MESSAGE_H
 
-#include "../../types.h"
-#include "../../../network/types.h"
+#include "../types.h"
+#include "../../network/types.h"
 #include <string>
 #include <vector>
 

@@ -11,28 +11,25 @@ CLIENT=sikclient__client.o sikclient__gui_client.o sikclient__parser.o $(EVENTS)
 
 TARGET: $(EXECS)
 
-network__%.o: network/%.cc
+network__%.o: src/network/%.cc
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
-siktacka__%.o: siktacka/%.cc
+siktacka__%.o: src/siktacka/%.cc
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
-siktacka__%.o: siktacka/events/%.cc
+siktacka__%.o: src/siktacka/events/%.cc
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
-siktacka__server_message.o: siktacka/protocol/server/message.cc
+siktacka__%.o: src/siktacka/protocol/%.cc
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
-siktacka__client_message.o: siktacka/protocol/client/message.cc
+sikserver__%.o: src/server/%.cc
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
-sikserver__%.o: server/%.cc
+sikclient__%.o: src/client/%.cc
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
-sikclient__%.o: client/%.cc
-	$(CXX) $(CXXFLAGS) -c -o $@ $<
-
-%.o: %.cc
+%.o: src/%.cc
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
 siktacka-server: $(SERVER) siktacka-server.o
@@ -44,4 +41,4 @@ siktacka-client: $(CLIENT) siktacka-client.o
 
 .PHONY: clean
 clean:
-	rm *.o $(EXECS)
+	$(RM) *.o $(EXECS)

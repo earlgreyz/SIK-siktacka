@@ -10,7 +10,7 @@
 #include "../network/sender.h"
 #include "../network/receiver.h"
 #include "../siktacka/game.h"
-#include "../siktacka/protocol/client/message.h"
+#include "../siktacka/protocol/client_message.h"
 #include "i_connection_listener.h"
 #include "connections.h"
 #include "buffer.h"

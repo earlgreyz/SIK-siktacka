@@ -3,7 +3,7 @@
 
 #include <iostream>
 #include <vector>
-#include "../protocol/server/constants.h"
+#include "../protocol/constants.h"
 #include "../types.h"
 #include "../../network/types.h"
 

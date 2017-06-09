@@ -1,5 +1,5 @@
 #include "server.h"
-#include "../siktacka/protocol/server/message.h"
+#include "../siktacka/protocol/server_message.h"
 #include <netdb.h>
 #include <boost/lexical_cast.hpp>
 #include <fcntl.h>

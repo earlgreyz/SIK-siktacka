@@ -6,7 +6,7 @@
 #include <chrono>
 #include <boost/lexical_cast.hpp>
 #include "client.h"
-#include "../siktacka/protocol/server/message.h"
+#include "../siktacka/protocol/server_message.h"
 
 using namespace sikclient;
 

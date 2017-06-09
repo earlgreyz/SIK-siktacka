@@ -1,5 +1,5 @@
 #include <stdexcept>
-#include "message.h"
+#include "client_message.h"
 
 using namespace siktacka;
 

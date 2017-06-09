@@ -1,5 +1,5 @@
-#include "message.h"
-#include "../../events/event_factory.h"
+#include "server_message.h"
+#include "../events/event_factory.h"
 
 using namespace siktacka;
 
