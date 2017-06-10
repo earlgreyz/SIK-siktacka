@@ -11,6 +11,8 @@ using namespace sikclient;
 GuiClient::GuiClient(int sock, const std::string &host, network::port_t port)
         : sock(sock), direction(siktacka::direction_t::NONE) {
     connect_to_gui(host, port);
+    buffer = std::string(64u, 0);
+    offset = 0u;
 }
 
 void GuiClient::connect_to_gui(const std::string &host, network::port_t port) {
@@ -40,21 +42,35 @@ void GuiClient::send_event(const std::string &event) {
 }
 
 void GuiClient::receive_event() {
-    network::buffer_t buffer(16u, 0);
     char *data = const_cast<char *>(buffer.data());
-    if (read(sock, data, buffer.size() - 1) <= 0) {
+    ssize_t len;
+    if ((len = read(sock, data + offset, buffer.size() - offset - 1)) <= 0) {
         throw std::runtime_error("GUI Connection error");
     }
+    offset += len;
+    std::string action("");
 
-    std::string action = buffer.data();
+    for (std::size_t i = 0; i < offset; i++) {
+        if (buffer[i] == '\n') {
+            action = buffer.substr(0, i);
+            buffer = buffer.substr(i + 1);
+            buffer.resize(64u, 0);
+            offset -= i + 1;
+            break;
+        }
+    }
 
-    if (action == "LEFT_KEY_DOWN\n") {
+    if (action == "") {
+        return;
+    }
+
+    if (action == "LEFT_KEY_DOWN") {
         direction = siktacka::direction_t::LEFT;
-    } else if (action == "LEFT_KEY_UP\n") {
+    } else if (action == "LEFT_KEY_UP") {
         deselect(siktacka::direction_t::LEFT);
-    } else if (action == "RIGHT_KEY_DOWN\n") {
+    } else if (action == "RIGHT_KEY_DOWN") {
         direction = siktacka::direction_t::RIGHT;
-    } else if (action == "RIGHT_KEY_UP\n") {
+    } else if (action == "RIGHT_KEY_UP") {
         deselect(siktacka::direction_t::RIGHT);
     }
 }

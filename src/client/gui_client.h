@@ -13,6 +13,10 @@ namespace sikclient {
         int sock;
         /// Client current direction
         siktacka::direction_t direction;
+        /// Buffer
+        network::buffer_t buffer;
+        /// Buffer offset
+        std::size_t offset;
 
     public:
         /**
