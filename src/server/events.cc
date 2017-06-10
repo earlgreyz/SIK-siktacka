@@ -21,7 +21,3 @@ Events::get_events(siktacka::event_no_t next_event) const noexcept {
 void Events::clear() noexcept {
     events.clear();
 }
-
-std::size_t Events::size() const noexcept {
-    return events.size();
-}

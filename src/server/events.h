@@ -32,11 +32,6 @@ namespace sikserver {
          * Clears the events list.
          */
         void clear() noexcept;
-
-        /**
-         * @return number of events in the list.
-         */
-        std::size_t size() const noexcept;
     };
 }
 

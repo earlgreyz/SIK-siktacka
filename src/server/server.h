@@ -30,6 +30,8 @@ namespace sikserver {
 
         /// Game events
         std::unique_ptr<Events> events;
+        /// Mutex on events
+        std::mutex events_mutex;
         /// The actual game server
         std::unique_ptr<siktacka::Game> game;
 

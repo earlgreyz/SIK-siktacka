@@ -57,10 +57,13 @@ void Server::stop() noexcept {
 }
 
 void Server::on_event(std::shared_ptr<siktacka::Event> event) {
-    if (event->get_event_type() == siktacka::event_t::GAME_OVER) {
-        events->clear();
-    } else {
-        events->add_event(event);
+    {
+        std::lock_guard<std::mutex> guard(events_mutex);
+        if (event->get_event_type() == siktacka::event_t::GAME_OVER) {
+            events->clear();
+        } else {
+            events->add_event(event);
+        }
     }
 
     connection_t now = std::chrono::high_resolution_clock::now();
@@ -139,8 +142,11 @@ void Server::receive_message() {
 void Server::make_message(sockaddr_storage address,
                           siktacka::event_no_t event_no) {
     siktacka::ServerMessage message(game->get_id());
-    std::queue<std::shared_ptr<siktacka::Event>> message_events =
-            events->get_events(event_no);
+    std::queue<std::shared_ptr<siktacka::Event>> message_events;
+    {
+        std::lock_guard<std::mutex> guard(events_mutex);
+        message_events = events->get_events(event_no);
+    }
     if (message_events.size() == 0) {
         return;
     }
