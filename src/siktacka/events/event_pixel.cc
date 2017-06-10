@@ -60,7 +60,7 @@ EventPixel::to_string(const std::vector<std::string> &players) const {
 
 void EventPixel::validate_in_game(pixel_t width, pixel_t height,
                                   std::size_t players_count) const {
-    if (x > width || y > height) {
+    if (x >= width || y >= height) {
         throw std::invalid_argument("PIXEL has invalid coordinates!");
     }
 

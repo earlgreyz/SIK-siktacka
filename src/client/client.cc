@@ -169,7 +169,12 @@ void Client::receive_message() {
                 initialize_players(
                         reinterpret_cast<siktacka::EventNewGame *>(event.get()));
             }
-            event->validate_in_game(width, height, players.size());
+            try {
+                event->validate_in_game(width, height, players.size());
+            } catch (const std::invalid_argument &e) {
+                stop();
+                throw std::invalid_argument(e);
+            }
 
             event_no++;
             events.push(event->to_string(players));
