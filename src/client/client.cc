@@ -153,13 +153,20 @@ void Client::add_server_message() noexcept {
 
 void Client::receive_message() {
     network::buffer_t buffer = receiver->receive_message(&server_address);
-    siktacka::ServerMessage message(buffer);
-    if (game_id != message.get_game_id()) {
-        game_id = message.get_game_id();
+    std::unique_ptr<siktacka::ServerMessage> message;
+    try {
+        message = std::make_unique<siktacka::ServerMessage>(buffer);
+    } catch (const std::invalid_argument &e) {
+        stop();
+        throw std::invalid_argument(e);
+    }
+
+    if (game_id != message->get_game_id()) {
+        game_id = message->get_game_id();
         event_no = 0;
     }
 
-    for (const auto &event: message) {
+    for (const auto &event: *message) {
         if (event->get_event_no() < event_no) {
             continue;
         } else if (event->get_event_no() == event_no) {
