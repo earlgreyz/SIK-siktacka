@@ -21,6 +21,7 @@ set(SOURCE_FILES
         src/siktacka/types.h
         src/network/sender.cc src/network/sender.h
         src/network/receiver.cc src/network/receiver.h
+        src/network/socket.cc src/network/socket.h
 
         src/siktacka/protocol/client_message.cc src/siktacka/protocol/client_message.h
 
@@ -44,7 +45,7 @@ set(SERVER_SOURCE_FILES
         src/server/events.cc src/server/events.h
         src/server/i_connection_listener.h
         src/server/connections.cc src/server/connections.h
-        src/server/buffer.cc src/server/buffer.h src/network/socket.cc src/network/socket.h)
+        src/server/buffer.cc src/server/buffer.h)
 
 set(CLIENT_SOURCE_FILES
         src/client/client.h src/client/client.cc
@@ -56,7 +57,9 @@ set(TESTS_SOURCE_FILES tests/test_event.cc tests/test_message.cc)
 add_executable(client src/siktacka-client.cc ${SOURCE_FILES} ${CLIENT_SOURCE_FILES})
 add_executable(server src/siktacka-server.cc ${SOURCE_FILES} ${SERVER_SOURCE_FILES})
 add_executable(tests tests/tests.cc ${SOURCE_FILES} ${TESTS_SOURCE_FILES})
+add_executable(malicious_server tests/malicious_server.cc ${SOURCE_FILES})
 
 TARGET_LINK_LIBRARIES(client ${Boost_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
 TARGET_LINK_LIBRARIES(server ${Boost_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
 TARGET_LINK_LIBRARIES(tests ${Boost_LIBRARIES})
+TARGET_LINK_LIBRARIES(malicious_server ${Boost_LIBRARIES})
