@@ -208,7 +208,7 @@ void Server::on_connect(std::shared_ptr<siktacka::ClientMessage> message,
             connections->add_client(address, session, name, now);
         }
 
-        make_message(address, message->get_next_event_no());
+        on_action(message, address, now);
     } catch (const std::invalid_argument &) {
         // Player already with that name is already in game
         return;
